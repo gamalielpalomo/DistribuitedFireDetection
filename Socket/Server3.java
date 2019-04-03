@@ -84,6 +84,7 @@ class ClientHandler extends Thread
         boolean Lider = true; 
         boolean Mensajero = false;
         boolean Incendio = false;
+        boolean SensorIncendio = false;
         while (true)
         {
             try {
@@ -101,7 +102,7 @@ class ClientHandler extends Thread
                     System.out.println("Cerrando la conexion.");
                     this.s.close();
                     System.out.println("Conexion cerrada");
-                    //break;
+                    break;
                 }
                 
                 // creating Date object
@@ -122,11 +123,12 @@ class ClientHandler extends Thread
                         break;
                         
                     case "dir" :
-                        
+                        System.out.println("dir requested");
                         if(Incendio && Lider){
                             dos.writeUTF("incendio");
                         }else{
                             dos.writeUTF("coordenadas");
+                            System.out.println("cord requested");
                         }
                         break;
                         
@@ -146,6 +148,13 @@ class ClientHandler extends Thread
                         Incendio = true;
                         break;
                         
+                    case "sensorincendio":
+                        if(SensorIncendio == true)
+                            dos.writeUTF("true"); 
+                        else
+                            dos.writeUTF("false");
+                        break;   
+
                     case "soymensajero":
                         Mensajero = true;
                         break;
@@ -161,6 +170,10 @@ class ClientHandler extends Thread
                         
                         System.out.println("porcentaje de bateria "+ bateria );
                         dos.writeUTF(Integer.toString(bateria));
+                        break;
+                    case "[Interface]: fire":
+                        System.out.println("Fuego detectado!");
+                        SensorIncendio = true;
                         break;
                     default:
                         dos.writeUTF("input no valido");

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-//package client;
+//package Drones;
 
 /**
  *
@@ -200,12 +200,13 @@ public class Client
                 };
                 }
                                
-                
+                dos1.writeUTF("sensorincendio");
+                received1 = dis1.readUTF();
 
                 
-                if(!incendio && deteccionIncendio()){
+                if(!incendio && received1.equalsIgnoreCase("true")){
                     //nuevo lider
-                    
+                    System.out.println("encontro incendio");
                     dos1.writeUTF("soylider");
                     dos2.writeUTF("nlider");
                     dos3.writeUTF("nlider");

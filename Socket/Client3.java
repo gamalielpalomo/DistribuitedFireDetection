@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package client3;
+//package Drones;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -200,8 +200,11 @@ public class Client3 {
                                
                 
 
+                dos3.writeUTF("sensorincendio");
+                received3 = dis3.readUTF();
+
                 
-                if(!incendio && deteccionIncendio()){
+                if(!incendio && received3.equalsIgnoreCase("true")){
                     //nuevo lider
                     
                     dos1.writeUTF("nlider");

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-//package server2;
+//package Drones;
 
 
 import java.io.*; 
@@ -81,6 +81,7 @@ class ClientHandler extends Thread
         boolean Lider = false; 
         boolean Mensajero = false;
         boolean Incendio = false;
+        boolean SensorIncendio = false;
         while (true)
         {
             try {
@@ -142,7 +143,14 @@ class ClientHandler extends Thread
                     case "incendio":
                         Incendio = true;
                         break;
-                        
+                    
+                    case "sensorincendio":
+                        if(SensorIncendio == true)
+                            dos.writeUTF("true"); 
+                        else
+                            dos.writeUTF("false");
+                        break;    
+
                     case "soymensajero":
                         Mensajero = true;
                         break;
@@ -158,6 +166,10 @@ class ClientHandler extends Thread
                         
                         System.out.println("porcentaje de bateria "+ bateria );
                         dos.writeUTF(Integer.toString(bateria));
+                        break;
+                    case "[Interface]: fire":
+                        System.out.println("Fuego detectado!");
+                        SensorIncendio = true;
                         break;
                     default:
                         dos.writeUTF("input no valido");

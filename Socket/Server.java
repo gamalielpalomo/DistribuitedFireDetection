@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-//package server;
+//package Drones;
 
 /**
  *
@@ -97,7 +97,8 @@ class ClientHandler extends Thread
         boolean Lider = false; 
         boolean Mensajero = false;
         boolean Incendio = false;
-        //while (true){
+        boolean SensorIncendio = false;
+        while (true){
             try {
                 
                 // Ask user what he wants
@@ -113,7 +114,7 @@ class ClientHandler extends Thread
                     System.out.println("Cerrando la conexion.");
                     this.s.close();
                     System.out.println("Conexion cerrada");
-                    //break;
+                    break;
                 }
                 
                 // creating Date object
@@ -157,6 +158,13 @@ class ClientHandler extends Thread
                     case "incendio":
                         Incendio = true;
                         break;
+
+                    case "sensorincendio":
+                        if(SensorIncendio == true)
+                            dos.writeUTF("true"); 
+                        else
+                            dos.writeUTF("false");
+                        break;
                         
                     case "soymensajero":
                         Mensajero = true;
@@ -175,8 +183,9 @@ class ClientHandler extends Thread
                         dos.writeUTF(Integer.toString(bateria));
                         break;
 
-                    case "tempSensor: fire":
-                        
+                    case "[Interface]: fire":
+                        System.out.println("Fuego detectado!");
+                        SensorIncendio = true;
                         break;
                     default:
                         dos.writeUTF("input no valido");
@@ -185,7 +194,7 @@ class ClientHandler extends Thread
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        //}
+        }
         
         try
         {
