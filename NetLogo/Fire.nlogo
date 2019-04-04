@@ -20,7 +20,7 @@ to setup
   ]
   create-turtles 3[
     set shape "wheel"
-    set size 3
+    set size 5
     set color red
     setxy random-xcor random-ycor
   ]

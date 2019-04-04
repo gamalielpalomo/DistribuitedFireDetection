@@ -1,79 +1,115 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-//package Drones;
+import java.io.IOException;
+import java.io.DataOutputStream;
+import java.io.DataInputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.ServerSocket;
+import java.net.DatagramSocket;
+import java.net.DatagramPacket;
+import java.util.List;
 
-
-import java.io.*; 
-import java.text.*; 
-import java.util.*; 
-import java.net.*; 
-
-// Server class
-public class Server2
+public class Drone
 {
-    public static void main(String[] args) throws IOException
-    {
+    boolean Lider = false; 
+    boolean Mensajero = false;
+    boolean Incendio = false;
+    boolean SensorIncendio = false;
+
+    public static void main(String[] args) throws IOException{
         
-        ServerSocket ss = new ServerSocket(202);
-       
-        
-        // running infinite loop for getting
-        // client request
-        while (true)
-        {
+        Drone droneObj = new Drone();
+        //Thread server = new DroneServer(droneObj);
+        //server.start();
+        droneObj.startDrone();
+
+    }
+
+    void startDrone(){
+        discovery();
+    }
+
+    //Función que descubre cuántos drones hay en el escenario
+    void discovery(){
+        System.out.println(sendBroadcast("Hello"));
+    }
+
+    boolean sendBroadcast(String msg){
+        InetAddress address;
+        try{
+            address = InetAddress.getByName("localhost");
+            DatagramSocket ds = new DatagramSocket();
+            ds.setBroadcast(true);
+            byte[] buffer = msg.getBytes();
+            DatagramPacket packet = new DatagramPacket(buffer,buffer.length,address,10000);
+            ds.send(packet);
+            ds.close();
+            return true;
+        }
+        catch(IOException ioe){
+            ioe.printStackTrace();
+            return false;
+        }
+    }
+
+}
+
+class DroneServer extends Thread{
+    final Drone droneRef;
+    public DroneServer(Drone droneRef){
+        this.droneRef = droneRef;
+    }
+    @Override
+    public void run(){
+        try{
+
+            ServerSocket ss = new ServerSocket(10000); 
+            // running infinite loop for getting
+            // client request
             Socket s = null;
+            System.out.println("[Drone]: Starting connection server");
+            s = ss.accept();
+            System.out.println("[Drone]: A new client is connected: " + s.getInetAddress());
             
-            try
-            {
-                // socket object to receive incoming client requests
-                
-                s = ss.accept();
-                
-                System.out.println("A new client is connected : " + s);
-                
-                // obtaining input and out streams
-                DataInputStream dis = new DataInputStream(s.getInputStream());
-                DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-                
-                System.out.println("Assigning new thread for this client");
-                
-                // create a new thread object
-                Thread t = new ClientHandler(s, dis, dos);
-                
-                // Invoking the start() method
-                t.start();
-                
-            }
-            catch (Exception e){
-                s.close();
-                e.printStackTrace();
-            }
+            // obtaining input and out streams
+            DataInputStream dis = new DataInputStream(s.getInputStream());
+            DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+            System.out.println("[Drone]: Assigning new thread for this communication");
+            Thread t = new DroneClientHandler(s, dis, dos, droneRef);
+            t.start();
+        
+
+        }
+        catch(IOException ioe){
+            ioe.printStackTrace();
         }
     }
 }
 
-// ClientHandler class
-class ClientHandler extends Thread
+class DroneClientHandler extends Thread
 {
-    DateFormat fordate = new SimpleDateFormat("yyyy/MM/dd");
-    DateFormat fortime = new SimpleDateFormat("hh:mm:ss");
     
     final DataInputStream dis;
     final DataOutputStream dos;
     final Socket s;
-    
-    
+    final Drone droneRef;
+
     // Constructor
-    public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos)
+    public DroneClientHandler(Socket s, DataInputStream dis, DataOutputStream dos, Drone droneRef)
     {
         this.s = s;
         this.dis = dis;
         this.dos = dos;
+        this.droneRef = droneRef;
     }
-     @Override
+    
+    public String bateria(){
+        
+        String Porcentaje = Integer.toString((int) (Math.random() * 100) + 1);
+        
+        return Porcentaje;
+    }
+    
+    @Override
     public void run()
     {
         String received;
@@ -82,8 +118,7 @@ class ClientHandler extends Thread
         boolean Mensajero = false;
         boolean Incendio = false;
         boolean SensorIncendio = false;
-        while (true)
-        {
+        //while (true){
             try {
                 
                 // Ask user what he wants
@@ -99,7 +134,7 @@ class ClientHandler extends Thread
                     System.out.println("Cerrando la conexion.");
                     this.s.close();
                     System.out.println("Conexion cerrada");
-                    break;
+                    //break;
                 }
                 
                 // creating Date object
@@ -143,14 +178,14 @@ class ClientHandler extends Thread
                     case "incendio":
                         Incendio = true;
                         break;
-                    
+
                     case "sensorincendio":
                         if(SensorIncendio == true)
                             dos.writeUTF("true"); 
                         else
                             dos.writeUTF("false");
-                        break;    
-
+                        break;
+                        
                     case "soymensajero":
                         Mensajero = true;
                         break;
@@ -167,28 +202,28 @@ class ClientHandler extends Thread
                         System.out.println("porcentaje de bateria "+ bateria );
                         dos.writeUTF(Integer.toString(bateria));
                         break;
-                    case "[Interface]: fire":
-                        System.out.println("Fuego detectado!");
-                        SensorIncendio = true;
-                        break;
 
-                    case "¿Hay alguien?":
-                        System.out.println("[Server2]: broadcast");
+                    case "[Interface]: fire":
+                        System.out.println("[Thread]: Fuego detectado!");
+                        this.droneRef.SensorIncendio = true;
+                        //SensorIncendio = true;
                         break;
                     default:
                         dos.writeUTF("input no valido");
                         break;
                 }
             } catch (IOException e) {
+                System.out.println("[Thread]: Exception");
                 e.printStackTrace();
             }
-        }
+        //}
         
         try
         {
             // closing resources
             this.dis.close();
             this.dos.close();
+            this.s.close();
             
         }catch(IOException e){
             e.printStackTrace();

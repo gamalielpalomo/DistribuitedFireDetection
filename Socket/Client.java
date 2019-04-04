@@ -92,6 +92,8 @@ public class Client
                 System.out.println("Iniciando "+ counter);
                 
                 //pregunta a los demas drones quien es el lider
+                //Hay que preguntar primero quienes más estan en la zona
+                //Una vez obtenido el conocimiento, ahora si preguntar por el lider (¿consenso?)
                 dos1.writeUTF("Lider");
                 dos2.writeUTF("Lider");
                 dos3.writeUTF("Lider");

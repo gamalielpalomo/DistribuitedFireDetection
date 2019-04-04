@@ -25,7 +25,7 @@ public class Server
     public static void main(String[] args) throws IOException
     {
         
-        ServerSocket ss = new ServerSocket(101);
+        ServerSocket ss = new ServerSocket(10000);
        
         
         // running infinite loop for getting
@@ -184,14 +184,18 @@ class ClientHandler extends Thread
                         break;
 
                     case "[Interface]: fire":
-                        System.out.println("Fuego detectado!");
+                        System.out.println("[Thread]: Fuego detectado!");
                         SensorIncendio = true;
                         break;
+                    case "Hello":
+                        System.out.println("[Server]: broadcast");
+                    break;
                     default:
                         dos.writeUTF("input no valido");
                         break;
                 }
             } catch (IOException e) {
+                System.out.println("[Thread]: Exception");
                 e.printStackTrace();
             }
         }
@@ -201,6 +205,7 @@ class ClientHandler extends Thread
             // closing resources
             this.dis.close();
             this.dos.close();
+            this.s.close();
             
         }catch(IOException e){
             e.printStackTrace();

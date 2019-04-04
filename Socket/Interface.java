@@ -27,7 +27,7 @@ public class Interface{
 				if(lectura!=null){
 					String []result = lectura.split("\\s");
 					choosenDrone = Integer.parseInt(result[2]);	
-					System.out.println("[Interface]: Drone "+choosenDrone+1+" detected fire");
+					System.out.println("[Interface]: Drone "+(choosenDrone+1)+" detected fire");
 					
 					sendMessage(choosenDrone,"[Interface]: fire");
 				}
@@ -75,7 +75,7 @@ public class Interface{
 			DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 			dos.writeUTF(inputMsg);
 			messageSent = true;
-			//s.close();
+			s.close();
 
 		}
 

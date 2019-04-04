@@ -20,7 +20,7 @@ to setup
   ]
   create-turtles 3[
     set shape "wheel"
-    set size 3
+    set size
     set color red
     setxy random-xcor random-ycor
   ]
@@ -100,11 +100,11 @@ end
 GRAPHICS-WINDOW
 228
 10
-1028
-811
+945
+728
 -1
 -1
-3.99
+3.53
 1
 10
 1
