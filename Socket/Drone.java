@@ -18,8 +18,8 @@ public class Drone
     public static void main(String[] args) throws IOException{
         
         Drone droneObj = new Drone();
-        //Thread server = new DroneServer(droneObj);
-        //server.start();
+        Thread server = new DroneServer(droneObj);
+        server.start();
         droneObj.startDrone();
 
     }
