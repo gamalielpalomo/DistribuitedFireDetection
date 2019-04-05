@@ -242,7 +242,7 @@ class DroneMulticastServer extends Thread{
     public void run(){
         try{
 
-
+            System.setProperty("java.net.preferIPv4Stack","true");
             MulticastSocket ms = new MulticastSocket(10000);
             InetAddress group = InetAddress.getByName("224.0.0.20");
             byte[] buffer = new byte[256];
