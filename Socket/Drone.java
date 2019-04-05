@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.net.ServerSocket;
 import java.net.DatagramSocket;
 import java.net.DatagramPacket;
+import java.net.MulticastSocket;
 import java.util.List;
 
 public class Drone
@@ -16,10 +17,11 @@ public class Drone
     boolean SensorIncendio = false;
 
     public static void main(String[] args) throws IOException{
-        
         Drone droneObj = new Drone();
         Thread server = new DroneServer(droneObj);
+        Thread mserver = new DroneMulticastServer(droneObj);
         server.start();
+        mserver.start();
         droneObj.startDrone();
 
     }
@@ -30,17 +32,17 @@ public class Drone
 
     //Función que descubre cuántos drones hay en el escenario
     void discovery(){
-        System.out.println(sendBroadcast("Hello"));
+        if(sendMulticast("Hello"))
+            System.out.println("[Drone]: Discovery message sent successfully");
     }
 
-    boolean sendBroadcast(String msg){
-        InetAddress address;
+    boolean sendMulticast(String msg){
+        InetAddress group;
         try{
-            address = InetAddress.getByName("localhost");
             DatagramSocket ds = new DatagramSocket();
-            ds.setBroadcast(true);
+            group = InetAddress.getByName("224.0.0.20");
             byte[] buffer = msg.getBytes();
-            DatagramPacket packet = new DatagramPacket(buffer,buffer.length,address,10000);
+            DatagramPacket packet = new DatagramPacket(buffer,buffer.length,group,10000);
             ds.send(packet);
             ds.close();
             return true;
@@ -62,18 +64,18 @@ class DroneServer extends Thread{
     public void run(){
         try{
 
-            ServerSocket ss = new ServerSocket(10000); 
+            ServerSocket ss = new ServerSocket(11000); 
             // running infinite loop for getting
             // client request
             Socket s = null;
-            System.out.println("[Drone]: Starting connection server");
+            System.out.println("[DroneServer]: Starting connection server");
             s = ss.accept();
-            System.out.println("[Drone]: A new client is connected: " + s.getInetAddress());
+            System.out.println("[DroneServer]: A new client is connected: " + s.getInetAddress());
             
             // obtaining input and out streams
             DataInputStream dis = new DataInputStream(s.getInputStream());
             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-            System.out.println("[Drone]: Assigning new thread for this communication");
+            System.out.println("[DroneServer]: Assigning new thread for this communication");
             Thread t = new DroneClientHandler(s, dis, dos, droneRef);
             t.start();
         
@@ -230,3 +232,36 @@ class DroneClientHandler extends Thread
         }
     }
 } 
+
+class DroneMulticastServer extends Thread{
+    final Drone droneRef;
+    public DroneMulticastServer(Drone droneRef){
+        this.droneRef = droneRef;
+    }
+    @Override
+    public void run(){
+        try{
+
+
+            MulticastSocket ms = new MulticastSocket(10000);
+            InetAddress group = InetAddress.getByName("224.0.0.20");
+            byte[] buffer = new byte[256];
+            ms.joinGroup(group);
+            while(true){
+                DatagramPacket dp = new DatagramPacket(buffer, buffer.length);
+                System.out.println("[DroneMulticastServer]: Multicast server started, listening...");
+                ms.receive(dp);
+                String inputMsg = new String(dp.getData(),0,dp.getLength());
+                System.out.println("[DroneMulticastServer]: A new multicast message was received -> "+inputMsg);
+                if("end".equals(inputMsg))
+                    break;
+            }
+            ms.leaveGroup(group);
+            ms.close();
+
+        }
+        catch(IOException ioe){
+            ioe.printStackTrace();
+        }
+    }
+}
