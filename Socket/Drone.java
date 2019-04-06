@@ -179,6 +179,11 @@ class DroneClientHandler extends Thread
                 if (splitMsg[0].equals("true")){
                 	System.out.println("[DroneServer]: Adding new neighbour -> "+s.getInetAddress());
                 	droneRef.addNeighbour(s.getInetAddress());
+                	
+                }
+                else if(splitMsg[0].equals("false")){
+                	System.out.println("[DroneServer]: Adding new neighbour -> "+s.getInetAddress());
+                	droneRef.addNeighbour(s.getInetAddress());
                 }
                 /*switch (received) {
                     
