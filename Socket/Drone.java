@@ -243,18 +243,22 @@ class DroneMulticastServer extends Thread{
         try{
 
             System.setProperty("java.net.preferIPv4Stack","true");
+            String localInetAddress = InetAddress.getLocalHost().getHostAddress();
+            System.out.println("[DroneMulticastServer]: InetAddress -> "+localInetAddress);
             MulticastSocket ms = new MulticastSocket(10000);
             InetAddress group = InetAddress.getByName("224.0.0.20");
             byte[] buffer = new byte[256];
             ms.joinGroup(group);
             while(true){
                 DatagramPacket dp = new DatagramPacket(buffer, buffer.length);
-                System.out.println("[DroneMulticastServer]: Multicast server started, listening...");
+            	System.out.println("[DroneMulticastServer]: Multicast server started, listening...");
                 ms.receive(dp);
-                String inputMsg = new String(dp.getData(),0,dp.getLength());
-                System.out.println("[DroneMulticastServer]: A new multicast message was received -> "+inputMsg);
-                if("end".equals(inputMsg))
-                    break;
+	            if(!dp.getAddress().toString().equals("/"+localInetAddress)){
+	                String inputMsg = new String(dp.getData(),0,dp.getLength());
+	                System.out.println("[DroneMulticastServer]: A new multicast message from " + dp.getAddress() + " was received -> "+inputMsg);
+	                if("end".equals(inputMsg))
+	                    break;
+                }
             }
             ms.leaveGroup(group);
             ms.close();
