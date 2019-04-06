@@ -9,6 +9,8 @@ import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 import java.util.ArrayList;
 
+import Global.Globals;
+
 public class Drone
 {
     boolean Lider = false; 			//"Lider" es true/false si el drone es el liner o no
@@ -42,7 +44,7 @@ public class Drone
 		try{
 
 			InetAddress address = target; 
-			Socket s = new Socket(address, 11000);
+			Socket s = new Socket(address, Globals.ServerPort);
 			DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 			dos.writeUTF(inputMsg);
 			s.close();
@@ -58,9 +60,9 @@ public class Drone
         InetAddress group;
         try{
             DatagramSocket ds = new DatagramSocket();
-            group = InetAddress.getByName("224.0.0.20");
+            group = InetAddress.getByName(Globals.groupAddress);
             byte[] buffer = msg.getBytes();
-            DatagramPacket packet = new DatagramPacket(buffer,buffer.length,group,10000);
+            DatagramPacket packet = new DatagramPacket(buffer,buffer.length,group,Globals.MulticastServerPort);
             ds.send(packet);
             ds.close();
             return true;
@@ -87,7 +89,7 @@ class DroneServer extends Thread{
     public void run(){
         try{
 
-            ServerSocket ss = new ServerSocket(11000); 
+            ServerSocket ss = new ServerSocket(Globals.ServerPort); 
             // running infinite loop for getting
             // client request
             Socket s = null;
@@ -179,7 +181,7 @@ class DroneClientHandler extends Thread
                 if (splitMsg[0].equals("true")){
                 	System.out.println("[DroneServer]: Adding new neighbour -> "+s.getInetAddress());
                 	droneRef.addNeighbour(s.getInetAddress());
-                	
+
                 }
                 else if(splitMsg[0].equals("false")){
                 	System.out.println("[DroneServer]: Adding new neighbour -> "+s.getInetAddress());
@@ -283,11 +285,11 @@ class DroneMulticastServer extends Thread{
     public void run(){
         try{
 
-            System.setProperty("java.net.preferIPv4Stack","true");
+            System.setProperty("java.net.preferIPv4Stack","true");//This line is used for specifying the prefered interface as IPv4
             String localInetAddress = InetAddress.getLocalHost().getHostAddress();
             System.out.println("[DroneMulticastServer]: InetAddress -> "+localInetAddress);
-            MulticastSocket ms = new MulticastSocket(10000);
-            InetAddress group = InetAddress.getByName("224.0.0.20");
+            MulticastSocket ms = new MulticastSocket(Globals.MulticastServerPort);
+            InetAddress group = InetAddress.getByName(Globals.groupAddress);
             byte[] buffer = new byte[256];
             ms.joinGroup(group);
             while(true){
