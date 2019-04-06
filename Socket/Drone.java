@@ -7,14 +7,16 @@ import java.net.ServerSocket;
 import java.net.DatagramSocket;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
-import java.util.List;
+import java.util.ArrayList;
 
 public class Drone
 {
-    boolean Lider = false; 
+    boolean Lider = false; 			//"Lider" es true/false si el drone es el liner o no
     boolean Mensajero = false;
     boolean Incendio = false;
     boolean SensorIncendio = false;
+
+    ArrayList<InetAddress> neighbours = new ArrayList<InetAddress>();
 
     public static void main(String[] args) throws IOException{
         Drone droneObj = new Drone();
@@ -36,6 +38,22 @@ public class Drone
             System.out.println("[Drone]: Discovery message sent successfully");
     }
 
+    boolean sendMessage(String inputAddress, String inputMsg){
+		try{
+
+			InetAddress address = InetAddress.getByName(inputAddress); 
+			Socket s = new Socket(address, 11000);
+			DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+			dos.writeUTF(inputMsg);
+			s.close();
+			return true;
+		}
+		catch(IOException ioe){
+			ioe.printStackTrace();
+			return false;
+		}
+	}
+
     boolean sendMulticast(String msg){
         InetAddress group;
         try{
@@ -51,6 +69,11 @@ public class Drone
             ioe.printStackTrace();
             return false;
         }
+    }
+
+    void addNeighbour(InetAddress newNeighbour){
+    	if(!neighbours.contains(newNeighbour))
+    		neighbours.add(newNeighbour);
     }
 
 }
@@ -115,11 +138,6 @@ class DroneClientHandler extends Thread
     public void run()
     {
         String received;
-
-        boolean Lider = false; 
-        boolean Mensajero = false;
-        boolean Incendio = false;
-        boolean SensorIncendio = false;
         //while (true){
             try {
                 
@@ -130,6 +148,7 @@ class DroneClientHandler extends Thread
                 // receive the answer from client
                 received = dis.readUTF();
                 
+                /*
                 if(received.equals("Salir"))
                 {
                     System.out.println("Cliente " + this.s + " quiere salir...");
@@ -138,13 +157,29 @@ class DroneClientHandler extends Thread
                     System.out.println("Conexion cerrada");
                     //break;
                 }
+                */
                 
                 // creating Date object
                 //Date date = new Date();
                 
                 // write on output stream based on the
                 // answer from the client
-                switch (received) {
+
+                /* We split here the received message applying the defined format:
+
+					splitMsg[0] -> The sender is leader? true/false and it is a reply for a "Hello" message
+					splitMsg[1] -> future purposes
+					splitMsg[2] -> future purposes
+					splitMsg[3] -> future purposes
+
+                */
+                String splitMsg[] = received.split(",");
+
+                if (splitMsg[0].equals("true")){
+                	System.out.println("[DroneServer]: Adding new neighbour -> "+s.getInetAddress());
+                	droneRef.addNeighbour(s.getInetAddress());
+                }
+                /*switch (received) {
                     
                     // hay lider
                     case "Lider":
@@ -213,7 +248,7 @@ class DroneClientHandler extends Thread
                     default:
                         dos.writeUTF("input no valido");
                         break;
-                }
+                }*/
             } catch (IOException e) {
                 System.out.println("[Thread]: Exception");
                 e.printStackTrace();
@@ -256,6 +291,14 @@ class DroneMulticastServer extends Thread{
 	            if(!dp.getAddress().toString().equals("/"+localInetAddress)){
 	                String inputMsg = new String(dp.getData(),0,dp.getLength());
 	                System.out.println("[DroneMulticastServer]: A new multicast message from " + dp.getAddress() + " was received -> "+inputMsg);
+	                
+	                switch(inputMsg){
+	                	case "Hello":
+	                		droneRef.sendMessage(dp.getAddress().toString(),droneRef.Lider+",-,-,-");
+	                		//Quiere decir que es un nuevo dron en el escenario, y está buscando a alguien más
+	                		break;
+	                }
+
 	                if("end".equals(inputMsg))
 	                    break;
                 }
