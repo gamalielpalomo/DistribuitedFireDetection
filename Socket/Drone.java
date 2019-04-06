@@ -38,10 +38,10 @@ public class Drone
             System.out.println("[Drone]: Discovery message sent successfully");
     }
 
-    boolean sendMessage(String inputAddress, String inputMsg){
+    boolean sendMessage(InetAddress target, String inputMsg){
 		try{
 
-			InetAddress address = InetAddress.getByName(inputAddress); 
+			InetAddress address = target; 
 			Socket s = new Socket(address, 11000);
 			DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 			dos.writeUTF(inputMsg);
@@ -173,6 +173,7 @@ class DroneClientHandler extends Thread
 					splitMsg[3] -> future purposes
 
                 */
+				System.out.println("[DroneServer]: Message received -> "+received);
                 String splitMsg[] = received.split(",");
 
                 if (splitMsg[0].equals("true")){
@@ -294,7 +295,7 @@ class DroneMulticastServer extends Thread{
 	                
 	                switch(inputMsg){
 	                	case "Hello":
-	                		droneRef.sendMessage(dp.getAddress().toString(),droneRef.Lider+",-,-,-");
+	                		droneRef.sendMessage(dp.getAddress(),droneRef.Lider+",-,-,-");
 	                		//Quiere decir que es un nuevo dron en el escenario, y está buscando a alguien más
 	                		break;
 	                }
