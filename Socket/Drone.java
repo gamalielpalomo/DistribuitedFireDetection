@@ -345,6 +345,7 @@ class DroneMulticastServer extends Thread{
 	                		droneRef.sendMessage(dp.getAddress(),droneRef.Lider+",-,-,-");
 	                		//Quiere decir que es un nuevo dron en el escenario, y está buscando a alguien más
 	                		droneRef.MsgArrived = true;
+	                		droneRef.addNeighbour(dp.getAddress());
 	                		break;
 	                }
 
