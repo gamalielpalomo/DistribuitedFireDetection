@@ -50,8 +50,8 @@ public class Drone
 	        		System.out.println("[Drone]: Tolerance time finished");
 	        		break;
 	        	}
+	        	MsgArrived = false;
 	        }
-	        MsgArrived = false;
 	        
 	        //A partir de aqui comienza el preconsenso
 	        Consenso = true;
