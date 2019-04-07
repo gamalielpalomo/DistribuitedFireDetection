@@ -7,6 +7,7 @@ import java.net.ServerSocket;
 import java.net.DatagramSocket;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import Global.Globals;
@@ -70,14 +71,14 @@ public class Drone
 	
 
     void requestConsensus(){
-    	for(InetAddress element : neighbours){
-    		sendMessage(element,"-,-,consensus,-");
+   		for(InetAddress element : neighbours){
+    		System.out.println("[Drone]: Sending consensus request to "+element);
+			sendMessage(element,"-,-,consensus,-");
     	}
     }
 
     boolean sendMessage(InetAddress target, String inputMsg){
 		try{
-
 			InetAddress address = target; 
 			Socket s = new Socket(address, Globals.ServerPort);
 			DataOutputStream dos = new DataOutputStream(s.getOutputStream());
