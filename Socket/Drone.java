@@ -57,12 +57,14 @@ public class Drone
 	        
 	        //A partir de aqui comienza el preconsenso
 	        Consenso = true;
+            System.out.println("\n--------- Starting consensus ---------\n");
 	        if(neighbours.size()==0){
 	        	System.out.println("[Drone]: I'm alone, becoming leader");
 	        	Lider = true;
 	        }
 	        else if(whoIsLeader==null)
 	        	requestConsensus();
+            
 	        Consenso = false;
 	    }
         catch(InterruptedException ie){
@@ -235,7 +237,7 @@ class DroneClientHandler extends Thread
                 	System.out.println("[DroneServer]: Fuego detectado!");
                     this.droneRef.SensorIncendio = true;
                 }
-                else if(splitMsg[2].equals("consenso")){
+                else if(splitMsg[2].equals("consensus")){
 
                 }
                 /*switch (received) {
@@ -338,14 +340,13 @@ class DroneMulticastServer extends Thread{
 
             System.setProperty("java.net.preferIPv4Stack","true");//This line is used for specifying the prefered interface as IPv4
             String localInetAddress = InetAddress.getLocalHost().getHostAddress();
-            System.out.println("[DroneMulticastServer]: InetAddress -> "+localInetAddress);
+            System.out.println("[DroneMulticastServer]: Starting multicast server on -> "+localInetAddress);
             MulticastSocket ms = new MulticastSocket(Globals.MulticastServerPort);
             InetAddress group = InetAddress.getByName(Globals.groupAddress);
             byte[] buffer = new byte[256];
             ms.joinGroup(group);
             while(true){
                 DatagramPacket dp = new DatagramPacket(buffer, buffer.length);
-            	System.out.println("[DroneMulticastServer]: Multicast server started, listening...");
                 ms.receive(dp);
 	            if(!dp.getAddress().toString().equals("/"+localInetAddress) && !droneRef.Consenso){
 	                String inputMsg = new String(dp.getData(),0,dp.getLength());
