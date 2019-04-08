@@ -9,7 +9,8 @@ import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.Map;
+import java.util.HashMap;
 
 import Global.Globals;
 
@@ -21,12 +22,14 @@ public class Drone
     boolean Consenso = false; //If the drone is in a consensus, this variable is true, else false.
     //MsgArrived variable tells us if a new message was sent to us. This is used before
     // the consensus protocol
+    int battery = (int) (Math.random() * 100) + 1;
     boolean MsgArrived = false; 
     boolean Mensajero = false;
     boolean Incendio = false;
 
     ArrayList<InetAddress> neighbours = new ArrayList<InetAddress>();
     ArrayList<InetAddress> listCopy = new ArrayList<InetAddress>(neighbours);
+    Map<InetAddress,Integer> batteries = new HashMap<InetAddress,Integer>();
 
     public static void main(String[] args) throws IOException{
         Drone droneObj = new Drone();
@@ -39,6 +42,7 @@ public class Drone
     }
 
     void startDrone(){
+        System.out.println("[Drone]: Battery -> "+battery+"%");
         discovery();
     }
 
@@ -57,16 +61,29 @@ public class Drone
 	        }
 	        
 	        //A partir de aqui comienza el preconsenso
-	        Consenso = true;
-            System.out.println("\n--------- Starting pre-consensus ---------\n");
+	        Consenso = true;           
 	        if(neighbours.size()==0){
 	        	System.out.println("[Drone]: I'm alone, becoming leader");
 	        	Lider = true;
 	        }
-	        else if(whoIsLeader==null)
-	        	requestConsensus();
-            ArrayList<InetAddress> listCopy = new ArrayList<InetAddress>(neighbours);
-            //Despues de enviar solicitud de consenso a 
+	        else if(whoIsLeader==null){
+                System.out.println("\n--------- Starting pre-consensus ---------\n");
+                requestConsensus();
+                //Después de enviar solicitud de consenso a todos sus conocidos, revisa si ellos también ya están en preconsenso, utilizando
+                //para esto la lista copia.
+                while(!listCopy.isEmpty()){
+                    Thread.sleep(500);
+                }
+                //Hasta este momento: check (palomita)
+                for(InetAddress element: neighbours){
+                    sendMessage(element,"-,-,battery,"+battery);
+                }
+                while(!(batteries.size()==neighbours.size())){
+                    Thread.sleep(500);
+                }
+                //Listo! Aqui ya todos estan en sintonía. CONSENSOOOOOO!!!
+                System.out.println("Drone: CONSENSOOOOO!!!");
+            }
 	        Consenso = false;
 	    }
         catch(InterruptedException ie){
@@ -87,7 +104,6 @@ public class Drone
 			InetAddress address = target; 
 			Socket s = new Socket(address, Globals.ServerPort);
 			DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-			Random rnd = new Random();
 			//Thread.sleep(rnd.nextInt(1000));
 			dos.writeUTF(inputMsg);
 			s.close();
@@ -238,11 +254,15 @@ class DroneClientHandler extends Thread
                 }
                 else if(splitMsg[1].equals("true")){
                 	System.out.println("[DroneServer]: Fuego detectado!");
-                    this.droneRef.SensorIncendio = true;
+                    droneRef.SensorIncendio = true;
                 }
                 else if(splitMsg[2].equals("consensus")){
                     System.out.println("[DroneServer]: Eliminando "+s.getInetAddress());
                     droneRef.listCopy.remove(s.getInetAddress());
+                }
+                else if(splitMsg[2].equals("battery")){
+                    System.out.println("[DroneServer]: Drone "+s.getInetAddress()+" has "+splitMsg[3]+"%");
+                    droneRef.batteries.put(s.getInetAddress(),Integer.parseInt(splitMsg[3]));
                 }
                 /*switch (received) {
                     
