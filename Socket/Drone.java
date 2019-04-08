@@ -26,6 +26,7 @@ public class Drone
     boolean Incendio = false;
 
     ArrayList<InetAddress> neighbours = new ArrayList<InetAddress>();
+    ArrayList<InetAddress> listCopy = new ArrayList<InetAddress>(neighbours);
 
     public static void main(String[] args) throws IOException{
         Drone droneObj = new Drone();
@@ -57,14 +58,15 @@ public class Drone
 	        
 	        //A partir de aqui comienza el preconsenso
 	        Consenso = true;
-            System.out.println("\n--------- Starting consensus ---------\n");
+            System.out.println("\n--------- Starting pre-consensus ---------\n");
 	        if(neighbours.size()==0){
 	        	System.out.println("[Drone]: I'm alone, becoming leader");
 	        	Lider = true;
 	        }
 	        else if(whoIsLeader==null)
 	        	requestConsensus();
-            
+            ArrayList<InetAddress> listCopy = new ArrayList<InetAddress>(neighbours);
+            //Despues de enviar solicitud de consenso a 
 	        Consenso = false;
 	    }
         catch(InterruptedException ie){
@@ -122,6 +124,7 @@ public class Drone
     	if(!neighbours.contains(newNeighbour))
             System.out.println("[DroneServer]: Adding new neighbour -> "+newNeighbour);
     		neighbours.add(newNeighbour);
+            listCopy.add(newNeighbour);
     }
 
 }
@@ -238,7 +241,8 @@ class DroneClientHandler extends Thread
                     this.droneRef.SensorIncendio = true;
                 }
                 else if(splitMsg[2].equals("consensus")){
-
+                    System.out.println("[DroneServer]: Eliminando "+s.getInetAddress());
+                    droneRef.listCopy.remove(s.getInetAddress());
                 }
                 /*switch (received) {
                     
