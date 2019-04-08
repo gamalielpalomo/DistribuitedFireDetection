@@ -49,8 +49,12 @@ public class Drone
     //Función que descubre cuántos drones hay en el escenario
     void discovery(){
     	try{
-    		if(sendMulticast("Hello"))
-            System.out.println("[Drone]: Discovery message sent successfully");
+            int multicastCounter = 0;
+    		while(multicastCounter<4){
+                sendMulticast("Hello");
+                Thread.sleep(250);    
+            }
+            
 	        while(true){
 	        	Thread.sleep(5000);
 	        	if(!MsgArrived){
@@ -78,10 +82,11 @@ public class Drone
                 for(InetAddress element: neighbours){
                     sendMessage(element,"-,-,battery,"+battery);
                 }
-                System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
                 while(!(batteries.size()==neighbours.size())){
+                    System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
                     Thread.sleep(500);
                 }
+                System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
                 //Listo! Aqui ya todos estan en sintonía. CONSENSOOOOOO!!!
                 System.out.println("Drone: CONSENSOOOOO!!!");
             }
