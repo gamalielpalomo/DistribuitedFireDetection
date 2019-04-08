@@ -78,6 +78,7 @@ public class Drone
                 for(InetAddress element: neighbours){
                     sendMessage(element,"-,-,battery,"+battery);
                 }
+                System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
                 while(!(batteries.size()==neighbours.size())){
                     Thread.sleep(500);
                 }
