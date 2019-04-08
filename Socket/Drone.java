@@ -49,12 +49,8 @@ public class Drone
     //Función que descubre cuántos drones hay en el escenario
     void discovery(){
     	try{
-            int multicastCounter = 0;
-    		while(multicastCounter<4){
-                sendMulticast("Hello");
-                Thread.sleep(250);    
-            }
-            
+    		if(sendMulticast("Hello"))
+            System.out.println("[Drone]: Discovery message sent successfully");
 	        while(true){
 	        	Thread.sleep(5000);
 	        	if(!MsgArrived){
@@ -147,6 +143,13 @@ public class Drone
             System.out.println("[DroneServer]: Adding new neighbour -> "+newNeighbour);
     		neighbours.add(newNeighbour);
             listCopy.add(newNeighbour);
+    }
+
+    void printList(ArrayList<InetAddress> al){
+        System.out.println("List:");
+        for(InetAddress element: al){
+            System.out.println(element);
+        }
     }
 
 }
