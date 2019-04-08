@@ -118,6 +118,7 @@ public class Drone
 
     void addNeighbour(InetAddress newNeighbour){
     	if(!neighbours.contains(newNeighbour))
+            System.out.println("[DroneServer]: Adding new neighbour -> "+newNeighbour);
     		neighbours.add(newNeighbour);
     }
 
@@ -139,12 +140,12 @@ class DroneServer extends Thread{
             System.out.println("[DroneServer]: Starting connection server");
             while(true){
             	s = ss.accept();
-	            System.out.println("[DroneServer]: A new client is connected: " + s.getInetAddress());
+	            //System.out.println("[DroneServer]: A new client is connected: " + s.getInetAddress());
 	            
 	            // obtaining input and out streams
 	            DataInputStream dis = new DataInputStream(s.getInputStream());
 	            DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-	            System.out.println("[DroneServer]: Assigning new thread for this communication");
+	            //System.out.println("[DroneServer]: Assigning new thread for this communication");
 	            Thread t = new DroneClientHandler(s, dis, dos, droneRef);
 	            t.start();
             }
@@ -219,22 +220,23 @@ class DroneClientHandler extends Thread
 					splitMsg[3] -> future purposes
 
                 */
-				System.out.println("[DroneServer]: Message received -> "+received);
+				System.out.println("[DroneServer]: Message received from "+s.getInetAddress()+"-> "+received);
                 String splitMsg[] = received.split(",");
 
                 if (splitMsg[0].equals("true")){
                 	droneRef.whoIsLeader = s.getInetAddress();
-                	System.out.println("[DroneServer]: Adding new neighbour -> "+s.getInetAddress());
                 	droneRef.addNeighbour(s.getInetAddress());
 
                 }
                 else if(splitMsg[0].equals("false")){
-                	System.out.println("[DroneServer]: Adding new neighbour -> "+s.getInetAddress());
                 	droneRef.addNeighbour(s.getInetAddress());
                 }
-                if(splitMsg[1].equals("true")){
+                else if(splitMsg[1].equals("true")){
                 	System.out.println("[DroneServer]: Fuego detectado!");
                     this.droneRef.SensorIncendio = true;
+                }
+                else if(splitMsg[2].equals("consenso")){
+
                 }
                 /*switch (received) {
                     
