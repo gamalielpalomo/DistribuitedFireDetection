@@ -108,10 +108,11 @@ public class Drone
         }
         if(maximum == null){
             Lider = true;
-            System.out.println();
+            System.out.println("[Drone]: I'm the leader by consensus");
         }
         else{
             whoIsLeader = maximum;
+            System.out.println("[Drone]: Leader is -> "+whoIsLeader);   
         }
 
     }
