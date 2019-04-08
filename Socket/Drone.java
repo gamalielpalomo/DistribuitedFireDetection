@@ -74,17 +74,9 @@ public class Drone
                 while(!listCopy.isEmpty()){
                     Thread.sleep(500);
                 }
-                //Hasta este momento: check (palomita)
-                for(InetAddress element: neighbours){
-                    sendMessage(element,"-,-,battery,"+battery);
-                }
-                while(!(batteries.size()==neighbours.size())){
-                    System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
-                    Thread.sleep(500);
-                }
-                System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
-                //Listo! Aqui ya todos estan en sintonía. CONSENSOOOOOO!!!
-                System.out.println("Drone: CONSENSOOOOO!!!");
+                //Hasta este momento: check (palomita) 
+                //Listo! Aqui ya todos estan en sintonía. CONSENSOOOOOO!!!               
+                consensus();
             }
 	        Consenso = false;
 	    }
@@ -93,12 +85,35 @@ public class Drone
 		}
 	}
 	
-
     void requestConsensus(){
    		for(InetAddress element : neighbours){
     		System.out.println("[Drone]: Sending consensus request to "+element);
 			sendMessage(element,"-,-,consensus,-");
     	}
+    }
+
+    void consensus(){
+
+        for(InetAddress element: neighbours)
+            sendMessage(element,"-,-,battery,"+battery);
+        while(!(batteries.size()==neighbours.size())){
+            System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
+            Thread.sleep(500);
+        }
+        System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
+        InetAddress maximum = null;
+        for(HashMap.Entry<InetAddress,Integer> element: batteries.EntrySet()){
+            if(element.getValue()>battery)
+                maximum = element.getKey();
+        }
+        if(maximum == null){
+            Leader = true;
+            System.out.println();
+        }
+        else{
+            whoIsLeader = maximum;
+        }
+
     }
 
     boolean sendMessage(InetAddress target, String inputMsg){
