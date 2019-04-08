@@ -9,6 +9,7 @@ import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import Global.Globals;
 
@@ -82,6 +83,8 @@ public class Drone
 			InetAddress address = target; 
 			Socket s = new Socket(address, Globals.ServerPort);
 			DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+			Random rnd = new Random();
+			//Thread.sleep(rnd.nextInt(1000));
 			dos.writeUTF(inputMsg);
 			s.close();
 			return true;
@@ -90,6 +93,10 @@ public class Drone
 			ioe.printStackTrace();
 			return false;
 		}
+		/*catch(InterruptedException ie){
+			ie.printStackTrace();
+			return false;
+		}*/
 	}
 
     boolean sendMulticast(String msg){
@@ -130,16 +137,17 @@ class DroneServer extends Thread{
             // client request
             Socket s = null;
             System.out.println("[DroneServer]: Starting connection server");
-            s = ss.accept();
-            System.out.println("[DroneServer]: A new client is connected: " + s.getInetAddress());
-            
-            // obtaining input and out streams
-            DataInputStream dis = new DataInputStream(s.getInputStream());
-            DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-            System.out.println("[DroneServer]: Assigning new thread for this communication");
-            Thread t = new DroneClientHandler(s, dis, dos, droneRef);
-            t.start();
-        
+            while(true){
+            	s = ss.accept();
+	            System.out.println("[DroneServer]: A new client is connected: " + s.getInetAddress());
+	            
+	            // obtaining input and out streams
+	            DataInputStream dis = new DataInputStream(s.getInputStream());
+	            DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+	            System.out.println("[DroneServer]: Assigning new thread for this communication");
+	            Thread t = new DroneClientHandler(s, dis, dos, droneRef);
+	            t.start();
+            }
 
         }
         catch(IOException ioe){
