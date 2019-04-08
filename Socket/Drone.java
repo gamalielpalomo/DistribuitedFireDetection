@@ -57,12 +57,14 @@ public class Drone
 	        
 	        //A partir de aqui comienza el preconsenso
 	        Consenso = true;
+            System.out.println("\n--------- Starting consensus ---------\n");
 	        if(neighbours.size()==0){
 	        	System.out.println("[Drone]: I'm alone, becoming leader");
 	        	Lider = true;
 	        }
 	        else if(whoIsLeader==null)
 	        	requestConsensus();
+            
 	        Consenso = false;
 	    }
         catch(InterruptedException ie){
@@ -118,6 +120,7 @@ public class Drone
 
     void addNeighbour(InetAddress newNeighbour){
     	if(!neighbours.contains(newNeighbour))
+            System.out.println("[DroneServer]: Adding new neighbour -> "+newNeighbour);
     		neighbours.add(newNeighbour);
     }
 
@@ -139,12 +142,12 @@ class DroneServer extends Thread{
             System.out.println("[DroneServer]: Starting connection server");
             while(true){
             	s = ss.accept();
-	            System.out.println("[DroneServer]: A new client is connected: " + s.getInetAddress());
+	            //System.out.println("[DroneServer]: A new client is connected: " + s.getInetAddress());
 	            
 	            // obtaining input and out streams
 	            DataInputStream dis = new DataInputStream(s.getInputStream());
 	            DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-	            System.out.println("[DroneServer]: Assigning new thread for this communication");
+	            //System.out.println("[DroneServer]: Assigning new thread for this communication");
 	            Thread t = new DroneClientHandler(s, dis, dos, droneRef);
 	            t.start();
             }
@@ -219,22 +222,23 @@ class DroneClientHandler extends Thread
 					splitMsg[3] -> future purposes
 
                 */
-				System.out.println("[DroneServer]: Message received -> "+received);
+				System.out.println("[DroneServer]: Message received from "+s.getInetAddress()+"-> "+received);
                 String splitMsg[] = received.split(",");
 
                 if (splitMsg[0].equals("true")){
                 	droneRef.whoIsLeader = s.getInetAddress();
-                	System.out.println("[DroneServer]: Adding new neighbour -> "+s.getInetAddress());
                 	droneRef.addNeighbour(s.getInetAddress());
 
                 }
                 else if(splitMsg[0].equals("false")){
-                	System.out.println("[DroneServer]: Adding new neighbour -> "+s.getInetAddress());
                 	droneRef.addNeighbour(s.getInetAddress());
                 }
-                if(splitMsg[1].equals("true")){
+                else if(splitMsg[1].equals("true")){
                 	System.out.println("[DroneServer]: Fuego detectado!");
                     this.droneRef.SensorIncendio = true;
+                }
+                else if(splitMsg[2].equals("consensus")){
+
                 }
                 /*switch (received) {
                     
@@ -336,14 +340,13 @@ class DroneMulticastServer extends Thread{
 
             System.setProperty("java.net.preferIPv4Stack","true");//This line is used for specifying the prefered interface as IPv4
             String localInetAddress = InetAddress.getLocalHost().getHostAddress();
-            System.out.println("[DroneMulticastServer]: InetAddress -> "+localInetAddress);
+            System.out.println("[DroneMulticastServer]: Starting multicast server on -> "+localInetAddress);
             MulticastSocket ms = new MulticastSocket(Globals.MulticastServerPort);
             InetAddress group = InetAddress.getByName(Globals.groupAddress);
             byte[] buffer = new byte[256];
             ms.joinGroup(group);
             while(true){
                 DatagramPacket dp = new DatagramPacket(buffer, buffer.length);
-            	System.out.println("[DroneMulticastServer]: Multicast server started, listening...");
                 ms.receive(dp);
 	            if(!dp.getAddress().toString().equals("/"+localInetAddress) && !droneRef.Consenso){
 	                String inputMsg = new String(dp.getData(),0,dp.getLength());
