@@ -92,7 +92,7 @@ public class Drone
     	}
     }
 
-    void consensus(){
+    void consensus() throws InterruptedException{
 
         for(InetAddress element: neighbours)
             sendMessage(element,"-,-,battery,"+battery);
@@ -102,12 +102,12 @@ public class Drone
         }
         System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
         InetAddress maximum = null;
-        for(HashMap.Entry<InetAddress,Integer> element: batteries.EntrySet()){
+        for(HashMap.Entry<InetAddress,Integer> element: batteries.entrySet()){
             if(element.getValue()>battery)
                 maximum = element.getKey();
         }
         if(maximum == null){
-            Leader = true;
+            Lider = true;
             System.out.println();
         }
         else{
