@@ -103,8 +103,10 @@ public class Drone
                 Thread.sleep(500);
             }
             System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
-            InetAddress maximum = InetAddress.getLocalHost();
+            InetAddress maximum = null;
             for(HashMap.Entry<InetAddress,Integer> element: batteries.entrySet()){
+                if(maximum == null && element.getValue()>battery)
+                    maximum = element.getKey();
                 if(element.getValue()>batteries.get(maximum))
                     maximum = element.getKey();
             }
@@ -120,9 +122,6 @@ public class Drone
         }
         catch(InterruptedException ie){
             ie.printStackTrace();
-        }
-        catch(UnknownHostException uhe){
-            uhe.printStackTrace();
         }
 
     }
