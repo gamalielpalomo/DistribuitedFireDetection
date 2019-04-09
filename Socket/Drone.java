@@ -105,10 +105,13 @@ public class Drone
             System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
             InetAddress maximum = null;
             for(HashMap.Entry<InetAddress,Integer> element: batteries.entrySet()){
-                if(maximum == null && element.getValue()>battery)
+                if(maximum == null && element.getValue()>battery){
                     maximum = element.getKey();
-                if(element.getValue()>batteries.get(maximum))
+                    System.out.println("[Drone]: "+element.getValue()+" > "+battery);
+                }
+                else if(maximum != null && element.getValue()>batteries.get(maximum)){
                     maximum = element.getKey();
+                }
             }
             if(maximum == null){
                 Lider = true;
