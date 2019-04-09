@@ -92,27 +92,37 @@ public class Drone
     	}
     }
 
-    void consensus() throws InterruptedException{
+    void consensus() {
 
-        for(InetAddress element: neighbours)
-            sendMessage(element,"-,-,battery,"+battery);
-        while(!(batteries.size()==neighbours.size())){
+        try{
+
+            for(InetAddress element: neighbours)
+                sendMessage(element,"-,-,battery,"+battery);
+            while(!(batteries.size()==neighbours.size())){
+                System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
+                Thread.sleep(500);
+            }
             System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
-            Thread.sleep(500);
+            InetAddress maximum = InetAddress.getLocalHost();
+            for(HashMap.Entry<InetAddress,Integer> element: batteries.entrySet()){
+                if(element.getValue()>batteries.get(maximum))
+                    maximum = element.getKey();
+            }
+            if(maximum == null){
+                Lider = true;
+                System.out.println("[Drone]: I'm the leader by consensus");
+            }
+            else{
+                whoIsLeader = maximum;
+                System.out.println("[Drone]: Leader is -> "+whoIsLeader);   
+            }
+
         }
-        System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
-        InetAddress maximum = null;
-        for(HashMap.Entry<InetAddress,Integer> element: batteries.entrySet()){
-            if(element.getValue()>battery)
-                maximum = element.getKey();
+        catch(InterruptedException ie){
+            ie.printStackTrace();
         }
-        if(maximum == null){
-            Lider = true;
-            System.out.println("[Drone]: I'm the leader by consensus");
-        }
-        else{
-            whoIsLeader = maximum;
-            System.out.println("[Drone]: Leader is -> "+whoIsLeader);   
+        catch(UnknownHostException uhe){
+            uhe.printStackTrace();
         }
 
     }
