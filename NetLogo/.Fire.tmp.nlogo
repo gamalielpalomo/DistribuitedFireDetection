@@ -47,7 +47,7 @@ to go
     ]
 
 
-    right random 360
+    right random
     ;;if not can-move? 1[
       rt 180
       forward 5
