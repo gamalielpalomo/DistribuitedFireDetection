@@ -136,7 +136,7 @@ public class Drone
 		while(true){
 			if (!SensorIncendio)
 				Thread.sleep(500);
-			else if (Lider=true)
+			else if (Lider)
 					Instructionsforfire(); 
 			else {
 				sendMessage(whoIsLeader, "-,i detected fire,-,-");		//Como no soy Lider, y detecte incendio, aviso al lider que lo encontre!.
@@ -153,9 +153,12 @@ public class Drone
             }
         }
         sendMessage(maximumVal,"-,-,You should take the lead of the team,-");  //Le envia que es el nuevo lider por ser el segundo con bateria
+        
+        disconnect();
 	}
-	void wait(){
+	void firestate(){
 			Thread.sleep(500);
+
 	}
     boolean sendMessage(InetAddress target, String inputMsg){
 		try{
@@ -329,7 +332,7 @@ class DroneClientHandler extends Thread
                     System.out.println("[DroneServer]: Drone "+s.getInetAddress()+" has "+splitMsg[3]+"%");
                     droneRef.batteries.put(s.getInetAddress(),Integer.parseInt(splitMsg[3]));
                 }
-                else if(splitMsg[1].equals("i detected fire")){
+                else if(splitMsg[1].equals("i detected fire")){   //Este msj solo le llega al lider
 					droneRef.Instructionsforfire();
 				}
 

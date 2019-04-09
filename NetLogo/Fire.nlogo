@@ -50,7 +50,7 @@ to go
     right random 360
     ;;if not can-move? 1[
       rt 180
-      forward 5
+      forward 1
     ;;]
     ]
   ]
