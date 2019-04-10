@@ -18,7 +18,7 @@ to setup
   ask patches [
     set pcolor one-of [blue green]
   ]
-  create-turtles 2[
+  create-turtles [
     set shape "wheel"
     set size 5
     set color red

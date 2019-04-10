@@ -7,14 +7,24 @@ import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.DataOutputStream;
 import java.util.StringTokenizer;
+import java.util.ArrayList;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.MulticastSocket;
+import java.net.DatagramPacket;
+
+import Global.Globals;
+
 
 public class Interface{
 	
 	boolean messageSent;
+	ArrayList<InetAddress> DronesInets = new ArrayList<InetAddress>();
 
-	void readFile(String fileString){
+
+
+
+	void startInterface(String fileString){
 		System.out.println("[Interface]: Starting interface with NetLogo");
 		try{
 			while(!messageSent){
@@ -28,8 +38,8 @@ public class Interface{
 					String []result = lectura.split("\\s");
 					choosenDrone = Integer.parseInt(result[2]);	
 					System.out.println("[Interface]: Drone "+(choosenDrone+1)+" detected fire");
-					
-					sendMessage(choosenDrone,"[Interface]: fire");
+					sendMessage(choosenDrone,"-,fire,-,-");
+					messageSent = true;
 				}
 				Thread.sleep(500);
 			}
@@ -52,29 +62,11 @@ public class Interface{
 
 			InetAddress address; 
 			Socket s;
-			switch(choosenDrone){
-				//Netlogo inicia en 0 a sus agentes y termina en 2 (para el caso de 3 drones)
-				//Considerar que aquí 
-				case 0:
-					address = InetAddress.getByName("localhost");
-					s = new Socket(address, 101);
-					break;
-				case 1:
-					address = InetAddress.getByName("localhost");
-					s = new Socket(address, 202);
-					break;
-				case 2:
-					address = InetAddress.getByName("localhost");
-					s = new Socket(address, 303);
-					break;
-				default:
-					s = null;
-			}
-
-			System.out.println("[Interface]: Sending message -> "+inputMsg);
+			address=DronesInets.get(choosenDrone);
+			s= new Socket(address, Globals.ServerPort);
 			DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 			dos.writeUTF(inputMsg);
-			messageSent = true;
+			System.out.println("[Interface]: Sending message -> "+inputMsg);
 			s.close();
 
 		}
@@ -87,8 +79,57 @@ public class Interface{
 
 	public static void main(String[] args) {
 		Interface interfaceObj = new Interface();
+		Thread server = new DroneRegisterServer(interfaceObj);
+		server.start();
 		interfaceObj.messageSent = false;
-		interfaceObj.readFile("C:\\Users\\gamaa\\Documents\\Software Projects\\DistribuitedFireDetection\\NetLogo\\NetLogo-output");
+		interfaceObj.startInterface(Globals.netLogoOutputFile);
 	}
+  	void addDroneInet(InetAddress newDroneInet){
+    	if(!DronesInets.contains(newDroneInet)){
+            System.out.println("[DroneServer]: Adding new DroneInet -> "+newDroneInet);
+    		DronesInets.add(newDroneInet);
+    	}
+    }
+}
 
+class DroneRegisterServer extends Thread{
+    final Interface interfaceRef;
+    public DroneRegisterServer(Interface interfaceRef){
+        this.interfaceRef = interfaceRef;
+    }
+    @Override
+    public void run(){
+        try{
+
+            System.setProperty("java.net.preferIPv4Stack","true");//This line is used for specifying the prefered interface as IPv4
+            String localInetAddress = InetAddress.getLocalHost().getHostAddress();
+            System.out.println("[DroneRegisterServer]: Starting multicast server on -> "+localInetAddress);
+            MulticastSocket ms = new MulticastSocket(Globals.MulticastServerInterface);
+            InetAddress group = InetAddress.getByName(Globals.groupAddress);
+            byte[] buffer = new byte[256];
+            ms.joinGroup(group);
+            while(true){
+                DatagramPacket dp = new DatagramPacket(buffer, buffer.length);
+                ms.receive(dp);
+                String inputMsg = new String(dp.getData(),0,dp.getLength());
+                System.out.println("[DroneResgiterServer]: A new multicast message from " + dp.getAddress() + " was received -> "+inputMsg);
+              
+                switch(inputMsg){
+                	case "Alta":
+                		interfaceRef.addDroneInet(dp.getAddress());
+                		break;
+                }
+
+                if("end".equals(inputMsg))
+                    break;
+
+            }
+            ms.leaveGroup(group);
+            ms.close();
+
+        }
+        catch(IOException ioe){
+            ioe.printStackTrace();
+        }
+    }
 }
