@@ -28,7 +28,6 @@ to setup
   ]
   create-flowers 100[
     set shape "flower"
-    set color [0 160 108]
     setxy random-xcor random-ycor
     set size one-of [ 5 6 7 8 9 10]
   ]
@@ -37,7 +36,12 @@ to setup
   set who-detected-fire "-"
   resize-world -100 100 -100 100
   ask patches [
-    set pcolor one-of [blue green]
+    let tmpRnd random 100
+    ifelse tmpRnd < 50[
+      set pcolor [0 119 190]
+    ][
+      set pcolor [135 216 16]
+    ]
   ]
   createScenario
   read-file
@@ -48,12 +52,12 @@ to createScenario
   ask patches[
     let myColor pColor
     if count neighbors with [pcolor = myColor] < 4[
-      ifelse myColor = green[
-        set pColor blue
+      ifelse myColor = [135 216 16][
+        set pColor [0 119 190]
       ]
       [
-        if myColor = blue[
-          set pColor green
+        if myColor = [0 119 190][
+          set pColor [135 216 16]
         ]
       ]
     ]
@@ -127,7 +131,7 @@ end
 
 to fire
   ask one-of patches[
-    if pcolor = green[
+    if pcolor = [135 216 16][
       set pcolor red
     ]
   ]
@@ -138,20 +142,20 @@ to update-scenario
   set grass-nearby []
 
   ask patches[
-    if pcolor = orange[
+    if pcolor = black[
       ifelse random 100 < fire-spread[
         set pcolor red
       ][
-        set pcolor green
+        set pcolor [135 216 16]
       ]
     ]
     if pcolor = red[
-      set tmp neighbors with [pcolor = green]
+      set tmp neighbors with [pcolor = [135 216 16]]
       ;set grass-nearby grass-nearby + tmp
     ]
   ]
   ask tmp[
-    set pcolor orange
+    set pcolor black
   ]
 end
 
