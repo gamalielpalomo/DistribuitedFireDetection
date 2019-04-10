@@ -151,8 +151,8 @@ public class Drone
 
 		}
 	}
-	void Instructionsforfire(){
-		InetAddress maximumVal = (InetAddress)batteries.entrySet().toArray()[0];
+	/*void Instructionsforfire(){
+		InetAddress maximumVal = (InetAddress)batteries.entrySet().toArray()[0].getKey();
 		for(HashMap.Entry<InetAddress,Integer> element: batteries.entrySet()){
             if(element.getValue()>batteries.get(maximumVal)){
                 maximumVal = element.getKey();
@@ -161,7 +161,7 @@ public class Drone
         }
         sendMessage(maximumVal,"-,-,You should take the lead of the team,-");  //Le envia que es el nuevo lider por ser el segundo con bateria
         
-	}
+	}*/
 
     void InstructionsForFire(){
         for(InetAddress element: neighbours){
@@ -355,7 +355,7 @@ class DroneClientHandler extends Thread
                     droneRef.batteries.put(s.getInetAddress(),Integer.parseInt(splitMsg[3]));
                 }
                 else if(splitMsg[1].equals("i detected fire")){   //Este msj solo le llega al lider
-					droneRef.Instructionsforfire();
+					droneRef.InstructionsForFire();
 				}
 
                 /*switch (received) {

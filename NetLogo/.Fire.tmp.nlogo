@@ -18,7 +18,7 @@ to setup
   ask patches [
     set pcolor one-of [blue green]
   ]
-  create-turtles [
+  create-turtles 2[
     set shape "wheel"
     set size 5
     set color red
@@ -203,9 +203,9 @@ HORIZONTAL
 
 MONITOR
 11
-271
+291
 137
-316
+336
 fire detected agents
 count turtles with [fire-detected = true]
 17

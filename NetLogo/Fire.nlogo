@@ -18,7 +18,7 @@ to setup
   ask patches [
     set pcolor one-of [blue green]
   ]
-  create-turtles 2[
+  create-turtles nDrones[
     set shape "wheel"
     set size 5
     set color red
@@ -203,14 +203,29 @@ HORIZONTAL
 
 MONITOR
 11
-271
+306
 137
-316
+351
 fire detected agents
 count turtles with [fire-detected = true]
 17
 1
 11
+
+SLIDER
+7
+258
+179
+291
+nDrones
+nDrones
+0
+5
+3.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
