@@ -24,7 +24,7 @@ public class Interface{
 
 
 
-	void readFile(String fileString){
+	void startInterface(String fileString){
 		System.out.println("[Interface]: Starting interface with NetLogo");
 		try{
 			while(!messageSent){
@@ -38,8 +38,8 @@ public class Interface{
 					String []result = lectura.split("\\s");
 					choosenDrone = Integer.parseInt(result[2]);	
 					System.out.println("[Interface]: Drone "+(choosenDrone+1)+" detected fire");
-					
 					sendMessage(choosenDrone,"-,fire,-,-");
+					messageSent = true;
 				}
 				Thread.sleep(500);
 			}
@@ -79,8 +79,10 @@ public class Interface{
 
 	public static void main(String[] args) {
 		Interface interfaceObj = new Interface();
+		Thread server = new DroneRegisterServer(interfaceObj);
+		server.start();
 		interfaceObj.messageSent = false;
-		interfaceObj.readFile("/Users/taniarodriguezflores/Documents/modific/Copia de DistribuitedFireDetection/NetLogo/NetLogo-output");
+		interfaceObj.startInterface(Globals.netLogoOutputFile);
 	}
   	void addDroneInet(InetAddress newDroneInet){
     	if(!DronesInets.contains(newDroneInet)){

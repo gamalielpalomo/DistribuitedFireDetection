@@ -134,16 +134,16 @@ public class Drone
 
     }	
 	void Patrol() throws InterruptedException{
-		while(true){
-			
-            System.out.println("[Drone]: Patrolling");
+		
+        System.out.println("[Drone]: Patrolling");
+        while(true){
             if(Incendio){
               firestate();  
             }
             if (!SensorIncendio)
 				Thread.sleep(500);
 			else if (Lider)
-					InstructionsForFire(); 
+				InstructionsForFire(); 
 			else {
 				sendMessage(whoIsLeader, "-,i detected fire,-,-");		//Como no soy Lider, y detecte incendio, aviso al lider que lo encontre!.
 				firestate();
@@ -167,6 +167,8 @@ public class Drone
         for(InetAddress element: neighbours){
             sendMessage(element,"-,firestate,-,-");
         }
+        System.out.println("[Drone]: Leaving fire zone, going to the base");
+        System.exit(0);
     }
 
 	void firestate() throws InterruptedException{
@@ -341,7 +343,7 @@ class DroneClientHandler extends Thread
                     droneRef.SensorIncendio = true;
                 }
                 else if(splitMsg[1].equals("firestate")){
-                    System.out.println("[DroneServer]: "+s.getInetAddress()+" detected fire, ya me voy a la caseta :)");
+                    System.out.println("[DroneServer]: Someone detected fire, going to fire state, rounding fire zone");
                     droneRef.Incendio = true;
                 }
                 else if(splitMsg[2].equals("consensus")){
