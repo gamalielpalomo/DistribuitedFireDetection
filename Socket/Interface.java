@@ -96,7 +96,7 @@ public class Interface{
     void writeFile() throws IOException{
     	BufferedWriter writer = new BufferedWriter(new FileWriter(Globals.netLogoInputFile,false));
     	writer.write(""+DronesInets.size());
-    	writer.write("\n"+DronesInets.indexOf(LeaderFromJava));
+    	writer.write("\n\""+LeaderFromJava+"\"");
     	for(InetAddress element : DronesInets){
     		writer.write("\n\""+element+"\"");
     	}

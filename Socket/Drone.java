@@ -135,7 +135,7 @@ public class Drone
 
     }	
 	void Patrol() throws InterruptedException{
-		
+		boolean fireMessageSent = false;
         System.out.println("[Drone]: Patrolling");
         while(true){
             if(Incendio){
@@ -145,8 +145,9 @@ public class Drone
 				Thread.sleep(500);
 			else if (Lider)
 				InstructionsForFire(); 
-			else {
+			else if (!fireMessageSent){
 				sendMessage(whoIsLeader, "-,i detected fire,-,-");		//Como no soy Lider, y detecte incendio, aviso al lider que lo encontre!.
+                fireMessageSent = true;
 				firestate();
 			}
 

@@ -7,6 +7,7 @@ globals[
 ]
 turtles-own[
   fire-detected
+  imLeader
 ]
 to setup
   clear-all
@@ -26,7 +27,7 @@ to read-file
   file-close
   file-open "NetLogo-input"
   set nDrones read-from-string file-read-line
-  set Leader read-from-string file-read-
+  set Leader read-from-string file-read-line
   create-turtles nDrones[
     set label (who + 1)
     set shape "wheel"
@@ -38,8 +39,16 @@ to read-file
   loop [
     if counter = nDrones[stop]
     ask turtles[
-      set label read-from-string file-read-line
+      let tmp read-from-string file-read-line
+      set label tmp
       set counter counter + 1
+      set imLeader fa
+      if tmp = Leader[
+        set color white
+        set size 10
+        set shape "airplane"
+        set imLeader true
+      ]
     ]
   ]
   file-close
