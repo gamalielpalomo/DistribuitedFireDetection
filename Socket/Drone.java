@@ -79,10 +79,10 @@ public class Drone
                 consensus();
                 // Comportamiento del drone en caso normal
                 //Fuegooo
-
+                Consenso = false;
                 Patrol();
             }
-	        Consenso = false;
+	        
 	    }
         catch(InterruptedException ie){
 			ie.printStackTrace();
@@ -132,16 +132,21 @@ public class Drone
         }
 
     }	
-	void Patrol(){
+	void Patrol() throws InterruptedException{
 		while(true){
-			if (!SensorIncendio)
+			
+            if(Incendio){
+              firestate();  
+            }
+            if (!SensorIncendio)
 				Thread.sleep(500);
 			else if (Lider)
-					Instructionsforfire(); 
+					InstructionsForFire(); 
 			else {
 				sendMessage(whoIsLeader, "-,i detected fire,-,-");		//Como no soy Lider, y detecte incendio, aviso al lider que lo encontre!.
 				firestate();
 			}
+
 		}
 	}
 	void Instructionsforfire(){
@@ -154,10 +159,19 @@ public class Drone
         }
         sendMessage(maximumVal,"-,-,You should take the lead of the team,-");  //Le envia que es el nuevo lider por ser el segundo con bateria
         
-        disconnect();
 	}
-	void firestate(){
-			Thread.sleep(500);
+
+    void InstructionsForFire(){
+        for(InetAddress element: neighbours){
+            sendMessage(element,"-,firestate,-,-");
+        }
+    }
+
+	void firestate() throws InterruptedException{
+
+        //Aqui se supone que los drones se quedan dando vueltas
+        System.out.println("[Drone]: Fire state");
+		Thread.sleep(500);
 
 	}
     boolean sendMessage(InetAddress target, String inputMsg){
@@ -323,6 +337,10 @@ class DroneClientHandler extends Thread
                 else if(splitMsg[1].equals("fire")){
                 	System.out.println("[DroneServer]: Fuego detectado!");
                     droneRef.SensorIncendio = true;
+                }
+                else if(splitMsg[1].equals("firestate")){
+                    System.out.println("[DroneServer]: "+s.getInetAddress()+" detected fire, ya me voy a la caseta :)");
+                    droneRef.Incendio = true;
                 }
                 else if(splitMsg[2].equals("consensus")){
                     System.out.println("[DroneServer]: Eliminando "+s.getInetAddress());
