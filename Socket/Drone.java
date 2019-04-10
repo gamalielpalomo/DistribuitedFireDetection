@@ -79,9 +79,10 @@ public class Drone
                 consensus();
                 // Comportamiento del drone en caso normal
                 //Fuegooo
-                Consenso = false;
-                Patrol();
+                
             }
+            Consenso = false;
+            Patrol();
 	        
 	    }
         catch(InterruptedException ie){
@@ -135,6 +136,7 @@ public class Drone
 	void Patrol() throws InterruptedException{
 		while(true){
 			
+            System.out.println("[Drone]: Patrolling");
             if(Incendio){
               firestate();  
             }
