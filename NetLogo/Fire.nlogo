@@ -13,18 +13,35 @@ to setup
   set fire-scenario false
   set file-written false
   set who-detected-fire "-"
-
   resize-world -100 100 -100 100
   ask patches [
     set pcolor one-of [blue green]
   ]
+  read-file
+  reset-ticks
+end
+
+to read-file
+  file-close
+  file-open "NetLogo-input"
+  let n read-from-string file-read-line
+  set nDrones n
   create-turtles nDrones[
+    set label (who + 1)
     set shape "wheel"
     set size 5
     set color red
     setxy random-xcor random-ycor
   ]
-  reset-ticks
+  let counter 0
+  loop [
+    if counter = nDrones[stop]
+    ask turtles[
+      set label read-from-string file-read-line
+      set counter counter + 1
+    ]
+  ]
+  file-close
 end
 
 to go
@@ -100,11 +117,11 @@ end
 GRAPHICS-WINDOW
 228
 10
-649
-432
+897
+680
 -1
 -1
-2.055
+3.29
 1
 10
 1
