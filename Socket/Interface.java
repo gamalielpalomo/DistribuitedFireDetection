@@ -22,7 +22,7 @@ public class Interface{
 	
 	boolean messageSent;
 	ArrayList<InetAddress> DronesInets = new ArrayList<InetAddress>();
-
+	InetAddress LeaderFromJava = null;
 
 
 
@@ -86,19 +86,19 @@ public class Interface{
 		interfaceObj.messageSent = false;
 		interfaceObj.startInterface(Globals.netLogoOutputFile);
 	}
-  	void addDroneInet(InetAddress newDroneInet) throws IOException{
+  	void addDroneInet(InetAddress newDroneInet){
     	if(!DronesInets.contains(newDroneInet)){
             System.out.println("[DroneServer]: Adding new DroneInet -> "+newDroneInet);
     		DronesInets.add(newDroneInet);
-    		writeFile();
     	}
     }
 
     void writeFile() throws IOException{
-    	BufferedWriter writer = new BufferedWriter(new FileWriter(Globals.netLogoInputFile,true));
+    	BufferedWriter writer = new BufferedWriter(new FileWriter(Globals.netLogoInputFile,false));
     	writer.write(""+DronesInets.size());
+    	writer.write("\n"+DronesInets.indexOf(LeaderFromJava));
     	for(InetAddress element : DronesInets){
-    		writer.write("\n"+element);
+    		writer.write("\n\""+element+"\"");
     	}
     	writer.close();
     }
@@ -130,6 +130,10 @@ class DroneRegisterServer extends Thread{
                 	case "Alta":
                 		interfaceRef.addDroneInet(dp.getAddress());
                 		break;
+                	case "Leader":
+                		interfaceRef.LeaderFromJava = dp.getAddress();
+                		interfaceRef.writeFile();
+                		break;
                 }
 
                 if("end".equals(inputMsg))
@@ -144,5 +148,4 @@ class DroneRegisterServer extends Thread{
             ioe.printStackTrace();
         }
     }
-
 }

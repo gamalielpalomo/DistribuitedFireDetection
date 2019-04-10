@@ -121,6 +121,7 @@ public class Drone
             if(maximum == null){
                 Lider = true;
                 System.out.println("[Drone]: I'm the leader by consensus");
+                sendMulticast("Leader", Globals.MulticastServerInterface);
             }
             else{
                 whoIsLeader = maximum;

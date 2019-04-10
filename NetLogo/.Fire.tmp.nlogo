@@ -3,6 +3,7 @@ globals[
   fire-scenario
   file-written
   who-detected-fire
+  Leader
 ]
 turtles-own[
   fire-detected
@@ -24,8 +25,8 @@ end
 to read-file
   file-close
   file-open "NetLogo-input"
-  let n read-from-string file-read-line
-  set nDrones n
+  set nDrones read-from-string file-read-line
+  set Leader read-from-string file-read-
   create-turtles nDrones[
     set label (who + 1)
     set shape "wheel"
@@ -35,12 +36,11 @@ to read-file
   ]
   let counter 0
   loop [
-    show counter
     if counter = nDrones[stop]
     ask turtles[
       set label read-from-string file-read-line
+      set counter counter + 1
     ]
-
   ]
   file-close
 end
@@ -49,27 +49,28 @@ to go
   ifelse fire-scenario [
     if file-written = false[
       write-output
+
     ]
-  ][
-  ask turtles[
-    let tmpResult false
-    ask patch-here[
-      if pcolor = red[
-        set tmpResult true
+  ]
+  [
+    ask turtles[
+      let tmpResult false
+      ask patch-here[
+        if pcolor = red[
+          set tmpResult true
+        ]
       ]
-    ]
-    set fire-detected tmpResult
-    if fire-detected[
-      set fire-scenario true
-      set who-detected-fire who
-    ]
+      set fire-detected tmpResult
+      if fire-detected[
+        set fire-scenario true
+        set who-detected-fire who
+      ]
+
+      fd 1
+      rt random 6
+      lt random 4
 
 
-    right random 360
-    ;;if not can-move? 1[
-      rt 180
-      forward 1
-    ;;]
     ]
   ]
 
