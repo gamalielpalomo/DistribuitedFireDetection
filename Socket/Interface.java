@@ -2,7 +2,9 @@
 
 import java.io.File;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.DataOutputStream;
@@ -84,11 +86,21 @@ public class Interface{
 		interfaceObj.messageSent = false;
 		interfaceObj.startInterface(Globals.netLogoOutputFile);
 	}
-  	void addDroneInet(InetAddress newDroneInet){
+  	void addDroneInet(InetAddress newDroneInet) throws IOException{
     	if(!DronesInets.contains(newDroneInet)){
             System.out.println("[DroneServer]: Adding new DroneInet -> "+newDroneInet);
     		DronesInets.add(newDroneInet);
+    		writeFile();
     	}
+    }
+
+    void writeFile() throws IOException{
+    	BufferedWriter writer = new BufferedWriter(new FileWriter(Globals.netLogoInputFile,true));
+    	writer.write(""+DronesInets.size());
+    	for(InetAddress element : DronesInets){
+    		writer.write("\n"+element);
+    	}
+    	writer.close();
     }
 }
 
@@ -104,12 +116,12 @@ class DroneRegisterServer extends Thread{
             System.setProperty("java.net.preferIPv4Stack","true");//This line is used for specifying the prefered interface as IPv4
             String localInetAddress = InetAddress.getLocalHost().getHostAddress();
             System.out.println("[DroneRegisterServer]: Starting multicast server on -> "+localInetAddress);
-            MulticastSocket ms = new MulticastSocket(Globals.MulticastServerInterface);
+            MulticastSocket ms = new MulticastSocket(Globals.MulticastServerInterface);//Aqui abre el socket para enviar un paquete
             InetAddress group = InetAddress.getByName(Globals.groupAddress);
             byte[] buffer = new byte[256];
             ms.joinGroup(group);
             while(true){
-                DatagramPacket dp = new DatagramPacket(buffer, buffer.length);
+                DatagramPacket dp = new DatagramPacket(buffer, buffer.length);//Paquete a enviar
                 ms.receive(dp);
                 String inputMsg = new String(dp.getData(),0,dp.getLength());
                 System.out.println("[DroneResgiterServer]: A new multicast message from " + dp.getAddress() + " was received -> "+inputMsg);
@@ -132,4 +144,5 @@ class DroneRegisterServer extends Thread{
             ioe.printStackTrace();
         }
     }
+
 }
