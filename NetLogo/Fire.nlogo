@@ -9,9 +9,29 @@ turtles-own[
   fire-detected
   imLeader
 ]
+breed [drones drone]
+breed [bases base]
+breed [vegetation plant]
+breed [flowers flower]
 to setup
   clear-all
-
+  create-bases 1[
+    set color white
+    set size 10
+    set shape "house"
+  ]
+  create-vegetation 100[
+    set shape "tree"
+    set color [0 160 108]
+    setxy random-xcor random-ycor
+    set size one-of [ 5 6 7 8 9 10]
+  ]
+  create-flowers 100[
+    set shape "flower"
+    set color [0 160 108]
+    setxy random-xcor random-ycor
+    set size one-of [ 5 6 7 8 9 10]
+  ]
   set fire-scenario false
   set file-written false
   set who-detected-fire "-"
@@ -19,8 +39,26 @@ to setup
   ask patches [
     set pcolor one-of [blue green]
   ]
+  createScenario
   read-file
   reset-ticks
+end
+
+to createScenario
+  ask patches[
+    let myColor pColor
+    if count neighbors with [pcolor = myColor] < 4[
+      ifelse myColor = green[
+        set pColor blue
+      ]
+      [
+        if myColor = blue[
+          set pColor green
+        ]
+      ]
+    ]
+  ]
+
 end
 
 to read-file
@@ -28,7 +66,7 @@ to read-file
   file-open "NetLogo-input"
   set nDrones read-from-string file-read-line
   set Leader read-from-string file-read-line
-  create-turtles nDrones[
+  create-drones nDrones[
     set label (who + 1)
     set shape "wheel"
     set size 5
@@ -38,7 +76,7 @@ to read-file
   let counter 0
   loop [
     if counter = nDrones[stop]
-    ask turtles[
+    ask drones[
       let tmp read-from-string file-read-line
       set label tmp
       set counter counter + 1
@@ -62,7 +100,7 @@ to go
     ]
   ]
   [
-    ask turtles[
+    ask drones[
       let tmpResult false
       ask patch-here[
         if pcolor = red[
