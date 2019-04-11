@@ -49,10 +49,16 @@ public class Drone
     //Función que descubre cuántos drones hay en el escenario
     void discovery(){
     	try{
-    		if(sendMulticast("Hello", Globals.MulticastServerPort))
+            int counter = 0;
+            while(counter < 3){
+                sendMulticast("Hello",Globals.MulticastServerPort);
+                Thread.sleep(250);
+                counter++;
+            }
+    		//if(sendMulticast("Hello", Globals.MulticastServerPort))
             System.out.println("[Drone]: Discovery message sent successfully");
 	        while(true){
-	        	Thread.sleep(5000);
+	        	Thread.sleep(8000);
 	        	if(!MsgArrived){
 	        		System.out.println("[Drone]: Tolerance time finished");
 	        		break;
