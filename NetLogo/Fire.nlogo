@@ -19,6 +19,7 @@ to setup
     set color white
     set size 10
     set shape "house"
+    setxy random-xcor random-ycor
   ]
   create-vegetation 100[
     set shape "tree"
@@ -100,8 +101,8 @@ to go
   ifelse fire-scenario [
     if file-written = false[
       write-output
-
     ]
+     fireScenario
   ]
   [
     ask drones[
@@ -127,6 +128,15 @@ to go
 
   update-scenario
   tick
+end
+
+to fireScenario
+  ask drones with[imLeader = true][
+    show who
+    set color red
+    set heading towards base 0
+    fd 1
+  ]
 end
 
 to fire
@@ -170,11 +180,11 @@ end
 GRAPHICS-WINDOW
 228
 10
-897
-680
+743
+526
 -1
 -1
-3.29
+2.5224
 1
 10
 1
