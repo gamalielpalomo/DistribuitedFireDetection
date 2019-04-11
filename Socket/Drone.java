@@ -50,13 +50,8 @@ public class Drone
     void discovery(){
     	try{
             int counter = 0;
-            while(counter < 3){
-                sendMulticast("Hello",Globals.MulticastServerPort);
-                Thread.sleep(250);
-                counter++;
-            }
-    		//if(sendMulticast("Hello", Globals.MulticastServerPort))
-            System.out.println("[Drone]: Discovery message sent successfully");
+    		if(sendMulticast("Hello", Globals.MulticastServerPort))
+                System.out.println("[Drone]: Discovery message sent successfully");
 	        while(true){
 	        	Thread.sleep(8000);
 	        	if(!MsgArrived){
