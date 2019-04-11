@@ -4,6 +4,7 @@ globals[
   file-written
   who-detected-fire
   Leader
+  coordenadas-fuego
 ]
 turtles-own[
   fire-detected
@@ -19,6 +20,7 @@ to setup
     set color white
     set size 10
     set shape "house"
+    setxy random-xcor random-ycor
   ]
   create-vegetation 100[
     set shape "tree"
@@ -37,7 +39,7 @@ to setup
   resize-world -100 100 -100 100
   ask patches [
     let tmpRnd random 100
-    ifelse tmpRnd < 5[
+    ifelse tmpRnd < 50[
       set pcolor [0 119 190]
     ][
       set pcolor [135 216 16]
@@ -100,8 +102,8 @@ to go
   ifelse fire-scenario [
     if file-written = false[
       write-output
-
     ]
+     fireScenario
   ]
   [
     ask drones[
@@ -113,6 +115,7 @@ to go
       ]
       set fire-detected tmpResult
       if fire-detected[
+        set coordenadas-fuego patch-here
         set fire-scenario true
         set who-detected-fire who
       ]
@@ -127,6 +130,18 @@ to go
 
   update-scenario
   tick
+end
+
+to fireScenario
+  ask drones with[imLeader = true][
+    set color red
+    set heading towards base 0
+    fd 1
+  ]
+  ask drones with [imLeader = false][
+    set heading towards coordenadas-fuego + 1
+    fd 1
+  ]
 end
 
 to fire
@@ -170,11 +185,11 @@ end
 GRAPHICS-WINDOW
 228
 10
-897
-680
+829
+612
 -1
 -1
-3.29
+2.95025
 1
 10
 1
