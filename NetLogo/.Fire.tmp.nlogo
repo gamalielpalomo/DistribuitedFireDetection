@@ -139,7 +139,7 @@ to fireScenario
     fd 1
   ]
   ask drones with [imLeader = false][
-    set heading towards coordenadas-fuego
+    set heading towards coordenadas-fuego + 1
     fd 1
   ]
 end
