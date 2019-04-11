@@ -16,6 +16,21 @@ breed [vegetation plant]
 breed [flowers flower]
 to setup
   clear-all
+
+  set fire-scenario false
+  set file-written false
+  set who-detected-fire "-"
+  resize-world -100 100 -100 100
+  ask patches [
+    let tmpRnd random 100
+    ifelse tmpRnd < 50[
+      set pcolor [0 119 190]
+    ][
+      set pcolor [135 216 16]
+    ]
+  ]
+  createScenario
+  read-file
   create-bases 1[
     set color white
     set size 10
@@ -33,20 +48,6 @@ to setup
     setxy random-xcor random-ycor
     set size one-of [ 5 6 7 8 9 10]
   ]
-  set fire-scenario false
-  set file-written false
-  set who-detected-fire "-"
-  resize-world -100 100 -100 100
-  ask patches [
-    let tmpRnd random 100
-    ifelse tmpRnd < 50[
-      set pcolor [0 119 190]
-    ][
-      set pcolor [135 216 16]
-    ]
-  ]
-  createScenario
-  read-file
   reset-ticks
 end
 
@@ -135,11 +136,11 @@ end
 to fireScenario
   ask drones with[imLeader = true][
     set color red
-    set heading towards base 0
+    set heading towards one-of base]
     fd 1
   ]
   ask drones with [imLeader = false][
-    set heading towards coordenadas-fuego + 1
+    set heading towards coordenadas-fuego
     fd 1
   ]
 end
@@ -306,7 +307,7 @@ nDrones
 nDrones
 0
 5
-3.0
+1.0
 1
 1
 NIL
@@ -663,7 +664,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.4
+NetLogo 6.0.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

@@ -65,6 +65,7 @@ public class Drone
 	        if(neighbours.size()==0){
 	        	System.out.println("[Drone]: I'm alone, becoming leader");
 	        	Lider = true;
+                sendMulticast("Leader", Globals.MulticastServerInterface);
 	        }
 	        else if(whoIsLeader==null){
                 System.out.println("\n--------- Starting pre-consensus ---------\n");

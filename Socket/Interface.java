@@ -94,6 +94,8 @@ public class Interface{
     }
 
     void writeFile() throws IOException{
+    	File inputFile1 = new File(Globals.netLogoInputFile);
+    	System.out.println("Puedo escribir: " + inputFile1.canWrite());     // Solo para mac
     	BufferedWriter writer = new BufferedWriter(new FileWriter(Globals.netLogoInputFile,false));
     	writer.write(""+DronesInets.size());
     	writer.write("\n\""+LeaderFromJava+"\"");
