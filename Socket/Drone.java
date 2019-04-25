@@ -49,10 +49,11 @@ public class Drone
     //Función que descubre cuántos drones hay en el escenario
     void discovery(){
     	try{
+            int counter = 0;
     		if(sendMulticast("Hello", Globals.MulticastServerPort))
-            System.out.println("[Drone]: Discovery message sent successfully");
+                System.out.println("[Drone]: Discovery message sent successfully");
 	        while(true){
-	        	Thread.sleep(5000);
+	        	Thread.sleep(8000);
 	        	if(!MsgArrived){
 	        		System.out.println("[Drone]: Tolerance time finished");
 	        		break;
@@ -65,6 +66,7 @@ public class Drone
 	        if(neighbours.size()==0){
 	        	System.out.println("[Drone]: I'm alone, becoming leader");
 	        	Lider = true;
+                sendMulticast("Leader", Globals.MulticastServerInterface);
 	        }
 	        else if(whoIsLeader==null){
                 System.out.println("\n--------- Starting pre-consensus ---------\n");

@@ -136,7 +136,7 @@ end
 to fireScenario
   ask drones with[imLeader = true][
     set color red
-    set heading towards one-of bases
+    set heading towards one-of base]
     fd 1
   ]
   ask drones with [imLeader = false][
