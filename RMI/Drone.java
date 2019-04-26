@@ -222,7 +222,7 @@ public class Drone
         try{
             Registry registry = LocateRegistry.getRegistry(inetAddress);
             RemoteElementInterface remoteObj = (RemoteElementInterface) registry.lookup(Globals.RMIServiceName);
-            remoteObj.pushMessage(inputMsg+",/"+InetAddress.getLocalHost().getHostAddress());
+            remoteObj.pushMessage(inputMsg+","+InetAddress.getLocalHost().getHostAddress());
             return true;
         }
         catch(RemoteException re){re.printStackTrace();return false;}
