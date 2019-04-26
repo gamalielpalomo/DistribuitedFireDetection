@@ -95,7 +95,7 @@ public class Drone
     void requestConsensus(){
    		for(InetAddress element : neighbours){
     		System.out.println("[Drone]: Sending consensus request to "+element);
-			sendRMIMessage(element,"-,-,consensus,-");
+			sendMessage(element,"-,-,consensus,-");
     	}
     }
 
@@ -104,7 +104,7 @@ public class Drone
         try{
 
             for(InetAddress element: neighbours)
-                sendRMIMessage(element,"-,-,battery,"+battery);
+                sendMessage(element,"-,-,battery,"+battery);
             while(!(batteries.size()==neighbours.size())){
                 System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
                 Thread.sleep(500);
@@ -148,7 +148,7 @@ public class Drone
 			else if (Lider)
 				InstructionsForFire(); 
 			else if (!fireMessageSent){
-				sendRMIMessage(whoIsLeader, "-,i detected fire,-,-");		//Como no soy Lider, y detecte incendio, aviso al lider que lo encontré!.
+				sendMessage(whoIsLeader, "-,i detected fire,-,-");		//Como no soy Lider, y detecte incendio, aviso al lider que lo encontré!.
                 fireMessageSent = true;
 				firestate();
 			}
@@ -169,7 +169,7 @@ public class Drone
 
     void InstructionsForFire(){
         for(InetAddress element: neighbours){
-            sendRMIMessage(element,"-,firestate,-,-");
+            sendMessage(element,"-,firestate,-,-");
         }
         System.out.println("[Drone]: Leaving fire zone, going to the base");
         System.exit(0);
