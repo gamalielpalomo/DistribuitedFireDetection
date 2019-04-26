@@ -11,11 +11,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-import java.rmi.registry.Registry;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.RemoteException;
-import java.rmi.NotBoundException;
-import java.rmi.server.UnicastRemoteObject;
 
 import Global.Globals;
 
@@ -31,7 +26,6 @@ public class Drone
     boolean MsgArrived = false; 
     boolean Mensajero = false;
     boolean Incendio = false;
-    
 
     ArrayList<InetAddress> neighbours = new ArrayList<InetAddress>();
     ArrayList<InetAddress> listCopy = new ArrayList<InetAddress>(neighbours);
@@ -41,13 +35,6 @@ public class Drone
         Drone droneObj = new Drone();
         Thread server = new DroneServer(droneObj);
         Thread mserver = new DroneMulticastServer(droneObj);
-        
-        //Aqui inicializamos un objeto remoto para ser usado por RMI
-        RemoteElementInterface remoteObject = new RemoteElement(droneObj);
-        RemoteElementInterface exportableObj = (RemoteElementInterface) UnicastRemoteObject.exportObject(remoteObject, 0);
-        Registry registry = LocateRegistry.createRegistry(1099);
-        registry.rebind(Globals.RMIServiceName, exportableObj);
-
         server.start();
         mserver.start();
         droneObj.startDrone();
@@ -62,11 +49,10 @@ public class Drone
     //Función que descubre cuántos drones hay en el escenario
     void discovery(){
     	try{
-            int counter = 0;
     		if(sendMulticast("Hello", Globals.MulticastServerPort))
-                System.out.println("[Drone]: Discovery message sent successfully");
+            System.out.println("[Drone]: Discovery message sent successfully");
 	        while(true){
-	        	Thread.sleep(8000);
+	        	Thread.sleep(5000);
 	        	if(!MsgArrived){
 	        		System.out.println("[Drone]: Tolerance time finished");
 	        		break;
@@ -79,7 +65,6 @@ public class Drone
 	        if(neighbours.size()==0){
 	        	System.out.println("[Drone]: I'm alone, becoming leader");
 	        	Lider = true;
-                sendMulticast("Leader", Globals.MulticastServerInterface);
 	        }
 	        else if(whoIsLeader==null){
                 System.out.println("\n--------- Starting pre-consensus ---------\n");
@@ -108,7 +93,7 @@ public class Drone
     void requestConsensus(){
    		for(InetAddress element : neighbours){
     		System.out.println("[Drone]: Sending consensus request to "+element);
-			sendRMIMessage(element,"-,-,consensus,-");
+			sendMessage(element,"-,-,consensus,-");
     	}
     }
 
@@ -117,7 +102,7 @@ public class Drone
         try{
 
             for(InetAddress element: neighbours)
-                sendRMIMessage(element,"-,-,battery,"+battery);
+                sendMessage(element,"-,-,battery,"+battery);
             while(!(batteries.size()==neighbours.size())){
                 System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
                 Thread.sleep(500);
@@ -136,7 +121,7 @@ public class Drone
             if(maximum == null){
                 Lider = true;
                 System.out.println("[Drone]: I'm the leader by consensus");
-                sendMulticast("Leader", Globals.MulticastServerInterface);// Este multicast es exclusivo para interface de NetLogo
+                sendMulticast("Leader", Globals.MulticastServerInterface);
             }
             else{
                 whoIsLeader = maximum;
@@ -161,7 +146,7 @@ public class Drone
 			else if (Lider)
 				InstructionsForFire(); 
 			else if (!fireMessageSent){
-				sendRMIMessage(whoIsLeader, "-,i detected fire,-,-");		//Como no soy Lider, y detecte incendio, aviso al lider que lo encontré!.
+				sendMessage(whoIsLeader, "-,i detected fire,-,-");		//Como no soy Lider, y detecte incendio, aviso al lider que lo encontre!.
                 fireMessageSent = true;
 				firestate();
 			}
@@ -182,7 +167,7 @@ public class Drone
 
     void InstructionsForFire(){
         for(InetAddress element: neighbours){
-            sendRMIMessage(element,"-,firestate,-,-");
+            sendMessage(element,"-,firestate,-,-");
         }
         System.out.println("[Drone]: Leaving fire zone, going to the base");
         System.exit(0);
@@ -190,12 +175,12 @@ public class Drone
 
 	void firestate() throws InterruptedException{
 
-        //Aqui se supone que los drones que no son Leader se quedan dando vueltas
+        //Aqui se supone que los drones se quedan dando vueltas
         System.out.println("[Drone]: Fire state");
 		Thread.sleep(500);
 
 	}
-    /*boolean sendMessage(InetAddress target, String inputMsg){
+    boolean sendMessage(InetAddress target, String inputMsg){
 		try{
 			InetAddress address = target; 
 			Socket s = new Socket(address, Globals.ServerPort);
@@ -209,29 +194,11 @@ public class Drone
 			ioe.printStackTrace();
 			return false;
 		}
-		catch(InterruptedException ie){
+		/*catch(InterruptedException ie){
 			ie.printStackTrace();
 			return false;
-		}
-	}*/
-
-    boolean sendRMIMessage(InetAddress target, String inputMsg){
-        
-        String inetAddress = target.getHostAddress();
-        char[] tmpString = new char[inetAddress.length()-1];
-        inetAddress.getChars(1,inetAddress.length()-1,tmpString,0);
-        String address = new String(tmpString);
-        try{
-            Registry registry = LocateRegistry.getRegistry(address);
-            RemoteElement remoteObj = (RemoteElement) registry.lookup(Globals.RMIServiceName);
-            remoteObj.pushMessage(inputMsg+",/"+InetAddress.getLocalHost().getHostAddress());
-            return true;
-        }
-        catch(RemoteException re){re.printStackTrace();return false;}
-        catch(UnknownHostException uhe){uhe.printStackTrace();return false;}
-        catch(NotBoundException nbe){nbe.printStackTrace();return false;}
-
-    }
+		}*/
+	}
 
     boolean sendMulticast(String msg, int targetport){
         InetAddress group;
@@ -362,9 +329,6 @@ class DroneClientHandler extends Thread
 					splitMsg[3] -> future purposes
 
                 */
-
-                String receivedRMIMsg = "-,fire,-,-";
-
 				System.out.println("[DroneServer]: Message received from "+s.getInetAddress()+"-> "+received);
                 String splitMsg[] = received.split(",");
 
@@ -510,7 +474,7 @@ class DroneMulticastServer extends Thread{
 	                
 	                switch(inputMsg){
 	                	case "Hello":
-	                		droneRef.sendRMIMessage(dp.getAddress(),droneRef.Lider+",-,-,-");
+	                		droneRef.sendMessage(dp.getAddress(),droneRef.Lider+",-,-,-");
 	                		//Quiere decir que es un nuevo dron en el escenario, y está buscando a alguien más
 	                		droneRef.MsgArrived = true;
 	                		droneRef.addNeighbour(dp.getAddress());

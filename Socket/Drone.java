@@ -95,7 +95,7 @@ public class Drone
     void requestConsensus(){
    		for(InetAddress element : neighbours){
     		System.out.println("[Drone]: Sending consensus request to "+element);
-			sendMessage(element,"-,-,consensus,-");
+			sendRMIMessage(element,"-,-,consensus,-");
     	}
     }
 
@@ -104,7 +104,7 @@ public class Drone
         try{
 
             for(InetAddress element: neighbours)
-                sendMessage(element,"-,-,battery,"+battery);
+                sendRMIMessage(element,"-,-,battery,"+battery);
             while(!(batteries.size()==neighbours.size())){
                 System.out.println("[Drone]: batteries.size -> "+batteries.size()+", neighbours.size -> "+neighbours.size());
                 Thread.sleep(500);
@@ -123,7 +123,7 @@ public class Drone
             if(maximum == null){
                 Lider = true;
                 System.out.println("[Drone]: I'm the leader by consensus");
-                sendMulticast("Leader", Globals.MulticastServerInterface);
+                sendMulticast("Leader", Globals.MulticastServerInterface);// Este multicast es exclusivo para interface de NetLogo
             }
             else{
                 whoIsLeader = maximum;
@@ -148,7 +148,7 @@ public class Drone
 			else if (Lider)
 				InstructionsForFire(); 
 			else if (!fireMessageSent){
-				sendMessage(whoIsLeader, "-,i detected fire,-,-");		//Como no soy Lider, y detecte incendio, aviso al lider que lo encontre!.
+				sendRMIMessage(whoIsLeader, "-,i detected fire,-,-");		//Como no soy Lider, y detecte incendio, aviso al lider que lo encontré!.
                 fireMessageSent = true;
 				firestate();
 			}
@@ -169,7 +169,7 @@ public class Drone
 
     void InstructionsForFire(){
         for(InetAddress element: neighbours){
-            sendMessage(element,"-,firestate,-,-");
+            sendRMIMessage(element,"-,firestate,-,-");
         }
         System.out.println("[Drone]: Leaving fire zone, going to the base");
         System.exit(0);
@@ -177,7 +177,7 @@ public class Drone
 
 	void firestate() throws InterruptedException{
 
-        //Aqui se supone que los drones se quedan dando vueltas
+        //Aqui se supone que los drones que no son Leader se quedan dando vueltas
         System.out.println("[Drone]: Fire state");
 		Thread.sleep(500);
 
@@ -331,6 +331,9 @@ class DroneClientHandler extends Thread
 					splitMsg[3] -> future purposes
 
                 */
+
+                String receivedRMIMsg = "-,fire,-,-";
+
 				System.out.println("[DroneServer]: Message received from "+s.getInetAddress()+"-> "+received);
                 String splitMsg[] = received.split(",");
 
