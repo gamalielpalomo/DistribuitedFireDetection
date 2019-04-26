@@ -11,5 +11,5 @@ public class Globals{
 	public static int ServerPort = 11000;
 
 	public static String RMIServiceName = "Ardilla";
-	
+
 }

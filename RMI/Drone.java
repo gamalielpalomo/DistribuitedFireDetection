@@ -221,6 +221,7 @@ public class Drone
         char[] tmpString = new char[inetAddress.length()-1];
         inetAddress.getChars(1,inetAddress.length()-1,tmpString,0);
         String address = new String(tmpString);
+        System.out.println("[sendRMIMessage]: Sending RMI message to "+address);
         try{
             Registry registry = LocateRegistry.getRegistry(address);
             RemoteElement remoteObj = (RemoteElement) registry.lookup(Globals.RMIServiceName);
