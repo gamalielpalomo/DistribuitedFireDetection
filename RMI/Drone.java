@@ -220,7 +220,7 @@ public class Drone
         String inetAddress = target.getHostAddress();
         System.out.println("[sendRMIMessage]: Sending RMI message to "+inetAddress);
         try{
-            Registry registry = LocateRegistry.getRegistry(address);
+            Registry registry = LocateRegistry.getRegistry(inetAddress);
             RemoteElement remoteObj = (RemoteElement) registry.lookup(Globals.RMIServiceName);
             remoteObj.pushMessage(inputMsg+",/"+InetAddress.getLocalHost().getHostAddress());
             return true;
