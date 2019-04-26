@@ -42,11 +42,19 @@ public class Drone
         Thread server = new DroneServer(droneObj);
         Thread mserver = new DroneMulticastServer(droneObj);
         
+        if (System.getSecurityManager() == null){
+            System.setSecurityManager(new SecurityManager());
+        }
         //Aqui inicializamos un objeto remoto para ser usado por RMI
-        RemoteElementInterface remoteObject = new RemoteElement(droneObj);
-        RemoteElementInterface exportableObj = (RemoteElementInterface) UnicastRemoteObject.exportObject(remoteObject, 0);
-        Registry registry = LocateRegistry.createRegistry(1099);
-        registry.rebind(Globals.RMIServiceName, exportableObj);
+        try{
+            RemoteElementInterface remoteObject = new RemoteElement(droneObj);
+            RemoteElementInterface exportableObj = (RemoteElementInterface) UnicastRemoteObject.exportObject(remoteObject, 0);
+            Registry registry = LocateRegistry.createRegistry(1099);
+            registry.rebind(Globals.RMIServiceName, exportableObj);    
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
 
         server.start();
         mserver.start();
