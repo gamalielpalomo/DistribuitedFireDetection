@@ -93,17 +93,10 @@ public class Drone
     }
     
     void requestConsensus(){
-<<<<<<< HEAD
         for(InetAddress element : neighbours){
             System.out.println("[Drone]: Sending consensus request to "+element);
             sendMessage(element,"-,-,consensus,-");
         }
-=======
-   		for(InetAddress element : neighbours){
-    		System.out.println("[Drone]: Sending consensus request to "+element);
-			sendMessage(element,"-,-,consensus,-");
-    	}
->>>>>>> 991f369ed08546a0be4004656825e831c5a2c1c4
     }
 
     void consensus() {
@@ -151,19 +144,11 @@ public class Drone
               firestate();  
             }
             if (!SensorIncendio)
-<<<<<<< HEAD
                 Thread.sleep(500);
             else if (Lider)
                 InstructionsForFire(); 
             else if (!fireMessageSent){
                 sendMessage(whoIsLeader, "-,i detected fire,-,-");       //Como no soy Lider, y detecte incendio, aviso al lider que lo encontré!.
-=======
-				Thread.sleep(500);
-			else if (Lider)
-				InstructionsForFire(); 
-			else if (!fireMessageSent){
-				sendMessage(whoIsLeader, "-,i detected fire,-,-");		//Como no soy Lider, y detecte incendio, aviso al lider que lo encontré!.
->>>>>>> 991f369ed08546a0be4004656825e831c5a2c1c4
                 fireMessageSent = true;
                 firestate();
             }
